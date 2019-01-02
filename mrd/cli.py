@@ -23,29 +23,43 @@ from .models import train_svm_model
 from .utils import load_list_file, dir_to_bam_list
 
 
+def check_required(ctx):
+    """check required mutually exclusive options"""
+    if ("positives_dir" not in ctx.params
+            and "positives_list" not in ctx.params):
+        raise click.BadParameter("Must set --positives-dir "
+                                 "or --positives-list.")
+    elif ("negatives_dir" not in ctx.params
+          and "negatives_list" not in ctx.params):
+        raise click.BadParameter("Must set --negatives-dir "
+                                 "or --negatives-list.")
+
+
 def directory_callback(ctx, param, value):
+    check_required(ctx)
     if value is None:
         return None
 
-    if param == "positives_dir" and "positives_list" in ctx.params:
-        raise ValueError("--positives-dir and --positives-list "
-                         "are mutually exclusive.")
-    elif param == "negatives_dir" and "negatives_list" in ctx.params:
-        raise ValueError("--negatives-dir and --negatives-list "
-                         "are mutually exclusive.")
+    if param.name == "positives_dir" and "positives_list" in ctx.params:
+        raise click.BadParameter("--positives-dir and --positives-list "
+                                 "are mutually exclusive.")
+    elif param.name == "negatives_dir" and "negatives_list" in ctx.params:
+        raise click.BadParameter("--negatives-dir and --negatives-list "
+                                 "are mutually exclusive.")
     return dir_to_bam_list(Path(value))
 
 
 def list_callback(ctx, param, value):
+    check_required(ctx)
     if value is None:
         return None
 
-    if param == "positives_list" and "positives_dir" in ctx.params:
-        raise ValueError("--positives-list and --positives-dir "
-                         "are mutually exclusive.")
-    elif param == "negatives_list" and "negatives_dir" in ctx.params:
-        raise ValueError("--negatives-list and --negatives-dir "
-                         "are mutually exclusive.")
+    if param.name == "positives_list" and "positives_dir" in ctx.params:
+        raise click.BadParameter("--positives-list and --positives-dir "
+                                 "are mutually exclusive.")
+    elif param.name == "negatives_list" and "negatives_dir" in ctx.params:
+        raise click.BadParameter("--negatives-list and --negatives-dir "
+                                 "are mutually exclusive.")
     return load_list_file(Path(value))
 
 
@@ -68,13 +82,18 @@ def list_callback(ctx, param, value):
               type=click.Path(exists=True, dir_okay=False,
                               file_okay=True, readable=True),
               callback=list_callback)
+@click.option("--cross-validations", type=click.INT, default=3)
+@click.option("--verbosity", type=click.INT, default=1)
 def train_cli(chunksize: int, contig: str,
               positives_dir: Optional[List[Path]] = None,
               negatives_dir: Optional[List[Path]] = None,
               positives_list: Optional[List[Path]] = None,
-              negatives_list: Optional[List[Path]] = None):
+              negatives_list: Optional[List[Path]] = None,
+              cross_validations: int = 3,
+              verbosity: int = 1):
 
     positives = positives_dir if positives_dir is not None else positives_list
     negatives = negatives_dir if negatives_dir is not None else negatives_list
 
-    train_svm_model(positives, negatives, chunksize=chunksize, contig=contig)
+    train_svm_model(positives, negatives, chunksize=chunksize, contig=contig,
+                    cross_validations=cross_validations, verbosity=verbosity)

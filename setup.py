@@ -12,5 +12,10 @@ setup(
         "click",
         "scikit-learn",
         "pysam"
-    ]
+    ],
+    entry_points={
+        "console_scripts": [
+            "mrd-train = mrd.cli:train_cli"
+        ]
+    }
 )
