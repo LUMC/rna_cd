@@ -11,7 +11,8 @@ setup(
     install_requires=[
         "click",
         "scikit-learn",
-        "pysam"
+        "pysam",
+        "matplotlib"
     ],
     entry_points={
         "console_scripts": [

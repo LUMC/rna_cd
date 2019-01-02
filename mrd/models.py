@@ -16,15 +16,15 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC, OneClassSVM
 from sklearn.decomposition import PCA
 from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import confusion_matrix
 
 from .bam_process import make_array_set
 from .utils import echo
@@ -33,7 +33,7 @@ from .utils import echo
 def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
                     chunksize: int = 100, contig: str = "chrM",
                     cross_validations: int = 3, verbosity: int = 1,
-                    cores: int = 1):
+                    cores: int = 1, plot_out: Optional[Path] = None):
     labels = ["pos"]*len(positive_bams) + ["neg"]*len(negative_bams)
     arr_X, arr_Y = make_array_set(positive_bams+negative_bams, labels,
                                   chunksize, contig, cores)
@@ -64,9 +64,46 @@ def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
     echo("Starting grid search for SVC model with {0} "
          "cross validations".format(cross_validations))
     searcher.fit(arr_X, arr_Y)
-    echo(searcher.best_params_)
+    echo("Finished gid search with best score: {0}.".format(
+        searcher.best_score_)
+    )
+    echo("Best parameters: {0}".format(searcher.best_params_))
 
+    if plot_out is not None:
+        echo("Plotting training samples onto top 2 PCA components.")
+        plot_pca(searcher, arr_X, arr_Y, plot_out)
+
+    echo("Finished training.")
+
+
+def plot_pca(searcher: GridSearchCV, arr_X: np.ndarray, arr_Y: np.ndarray,
+             img_out: Path) -> None:
+    """Plot PCA with training samples and predictions of pipeline"""
     # evaluating on train set = BAD!
     pred_Y = searcher.predict(arr_X)
-    confused = confusion_matrix(arr_Y, pred_Y)
-    echo(confused)
+
+    pos_X = arr_X[arr_Y == "pos"]
+    neg_X = arr_X[arr_Y == "neg"]
+    pos_pred_X = arr_X[pred_Y == "pos"]
+    neg_pred_X = arr_X[pred_Y == "neg"]
+
+    best_pca = searcher.best_estimator_.named_steps['reduce_dim']
+    pos_X_transformed = best_pca.transform(pos_X)
+    neg_X_transformed = best_pca.transform(neg_X)
+    pos_pred_X_transformed = best_pca.transform(pos_pred_X)
+    neg_pred_X_transformed = best_pca.transform(neg_pred_X)
+
+    fig = plt.figure(figsize=(6, 11))
+    ax = fig.add_subplot(111)
+    ax.scatter(pos_X_transformed[:, 0], pos_X_transformed[:, 1],
+               color="red", label="Train positives")
+    ax.scatter(neg_X_transformed[:, 0], neg_X_transformed[:, 1],
+               color="blue", label="Train negatives")
+    ax.scatter(pos_pred_X_transformed[:, 0], pos_pred_X_transformed[:, 1],
+               color="red", marker="+")
+    ax.scatter(neg_pred_X_transformed[:, 0], neg_pred_X_transformed[:, 1],
+               color="blue", marker=(5, 2))
+    ax.set_xlabel("1st component")
+    ax.set_ylabel("2nd component")
+    ax.legend()
+    fig.savefig(str(img_out), format="png", dpi=300)

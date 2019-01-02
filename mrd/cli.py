@@ -71,13 +71,15 @@ def list_callback(ctx, param, value):
 @click.option("--cross-validations", type=click.INT, default=3)
 @click.option("--verbosity", type=click.INT, default=1)
 @click.option("-j", "--cores", type=click.INT, default=1)
+@click.option("--plot-out", type=click.Path(writable=True))
 def train_cli(chunksize: int, contig: str,
               positives_dir: Optional[List[Path]] = None,
               negatives_dir: Optional[List[Path]] = None,
               positives_list: Optional[List[Path]] = None,
               negatives_list: Optional[List[Path]] = None,
               cross_validations: int = 3,
-              verbosity: int = 1, cores: int = 1):
+              verbosity: int = 1, cores: int = 1,
+              plot_out: Optional[Path] = None):
 
     if positives_dir is None and positives_list is None:
         raise ValueError("Must set either --positives-dir or --positives-list")
@@ -90,4 +92,4 @@ def train_cli(chunksize: int, contig: str,
 
     train_svm_model(positives, negatives, chunksize=chunksize, contig=contig,
                     cross_validations=cross_validations, verbosity=verbosity,
-                    cores=cores)
+                    cores=cores, plot_out=plot_out)
