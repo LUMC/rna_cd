@@ -16,6 +16,8 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import datetime
+from pathlib import Path
+from typing import List
 import click
 
 
@@ -23,3 +25,15 @@ def echo(msg: str):
     """Wrapper around click.secho to include datetime"""
     fmt = "[ {0} ] {1}".format(str(datetime.datetime.utcnow()), msg)
     click.secho(fmt, fg="green", err=True)
+
+
+def load_list_file(path: Path) -> List[Path]:
+    """Load a file containing containing a list of files"""
+    with path.open("r") as handle:
+        return [Path(x.strip()) for x in handle]
+
+
+def dir_to_bam_list(path: Path) -> List[Path]:
+    """Load a directory containing bam or cram files"""
+    return [x for x in path.iterdir() if x.name.endswith(".bam")
+            or x.name.endswith(".cram")]
