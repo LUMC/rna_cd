@@ -17,8 +17,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import datetime
 from pathlib import Path
-from typing import List
+from typing import List, NamedTuple, Any
+import joblib
 import click
+import sklearn
+
+
+class VersionInfo(NamedTuple):
+    major: int
+    minor: int
+    patch: int
+
+    def __str__(self):
+        return "{0}.{1}.{2}".format(
+            self.major, self.minor, self.patch
+        )
+
+
+VERSION = VersionInfo(0, 0, 1)
 
 
 def echo(msg: str):
@@ -37,3 +53,14 @@ def dir_to_bam_list(path: Path) -> List[Path]:
     """Load a directory containing bam or cram files"""
     return [x for x in path.iterdir() if x.name.endswith(".bam")
             or x.name.endswith(".cram")]
+
+
+def save_sklearn_object_to_disk(obj: Any, path: Path):
+    """Save an object with some metadata to disk"""
+    d = {
+        "mrd_version": str(VERSION),
+        "sklearn_version": sklearn.__version__,
+        "datetime_stored": str(datetime.datetime.utcnow()),
+        "object": obj
+    }
+    joblib.dump(d, str(path))

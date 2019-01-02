@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Optional, List
 
 from .models import train_svm_model
-from .utils import load_list_file, dir_to_bam_list
+from .utils import load_list_file, dir_to_bam_list, save_sklearn_object_to_disk
 
 
 def directory_callback(ctx, param, value):
@@ -72,7 +72,9 @@ def list_callback(ctx, param, value):
 @click.option("--verbosity", type=click.INT, default=1)
 @click.option("-j", "--cores", type=click.INT, default=1)
 @click.option("--plot-out", type=click.Path(writable=True))
-def train_cli(chunksize: int, contig: str,
+@click.option("-o", "--model-out", type=click.Path(writable=True),
+              required=True)
+def train_cli(chunksize: int, contig: str, model_out: Path,
               positives_dir: Optional[List[Path]] = None,
               negatives_dir: Optional[List[Path]] = None,
               positives_list: Optional[List[Path]] = None,
@@ -90,6 +92,9 @@ def train_cli(chunksize: int, contig: str,
     positives = positives_dir if positives_dir is not None else positives_list
     negatives = negatives_dir if negatives_dir is not None else negatives_list
 
-    train_svm_model(positives, negatives, chunksize=chunksize, contig=contig,
-                    cross_validations=cross_validations, verbosity=verbosity,
-                    cores=cores, plot_out=plot_out)
+    model = train_svm_model(positives, negatives, chunksize=chunksize,
+                            contig=contig, cross_validations=cross_validations,
+                            verbosity=verbosity, cores=cores,
+                            plot_out=plot_out)
+
+    save_sklearn_object_to_disk(model, model_out)

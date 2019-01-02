@@ -1,9 +1,11 @@
 from setuptools import setup, find_packages
 
+from mrd import VERSION
+
 setup(
     name="mrd",
     description="mouse-rna detection",
-    version="0.0.1",
+    version=str(VERSION),
     author="Sander Bollen",
     author_email="a.h.b.bollen@lumc.nl",
     license="AGPLv3",

@@ -33,7 +33,8 @@ from .utils import echo
 def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
                     chunksize: int = 100, contig: str = "chrM",
                     cross_validations: int = 3, verbosity: int = 1,
-                    cores: int = 1, plot_out: Optional[Path] = None):
+                    cores: int = 1,
+                    plot_out: Optional[Path] = None) -> GridSearchCV:
     labels = ["pos"]*len(positive_bams) + ["neg"]*len(negative_bams)
     arr_X, arr_Y = make_array_set(positive_bams+negative_bams, labels,
                                   chunksize, contig, cores)
@@ -74,6 +75,7 @@ def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
         plot_pca(searcher, arr_X, arr_Y, plot_out)
 
     echo("Finished training.")
+    return searcher
 
 
 def plot_pca(searcher: GridSearchCV, arr_X: np.ndarray, arr_Y: np.ndarray,
