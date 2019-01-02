@@ -21,10 +21,12 @@ bam_process.py
 Process bam file to numpy array for classifications.
 """
 from pathlib import Path
-from typing import Iterator, Tuple, Callable
+from typing import Iterator, Tuple, Callable, List, Any
 
 import numpy as np
 from pysam import AlignmentFile
+
+from .utils import echo
 
 
 def chop_contig(size: int, chunksize: int) -> Iterator[Tuple[int, int]]:
@@ -83,3 +85,22 @@ def process_bam(path: Path, chunksize: int = 100,
         block += [n_reads, cov, softclip]
         arr += block
     return np.array(arr)
+
+
+def make_array_set(bam_files: List[Path], labels: List[Any],
+                   chunksize: int = 100,
+                   contig: str = "chrM") -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Make set of numpy arrays corresponding to data  and labels.
+    I.e. train/testX and train/testY in scikit-learn parlance.
+
+    :param bam_files: List of paths to bam files
+    :param labels: list of labels.
+    :return: tuple of X and Y numpy arrays. X = 2d, Y = 1d
+    """
+    arr_X = []
+    for bam in bam_files:
+        echo("Calculating features for {0}".format(bam.name))
+        arr_X.append(process_bam(bam, chunksize, contig))
+        echo("Done calculating features for {0}".format(bam.name))
+    return np.array(arr_X), np.array(labels)

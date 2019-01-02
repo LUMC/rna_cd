@@ -25,20 +25,16 @@ from sklearn.svm import SVC, OneClassSVM
 from sklearn.decomposition import PCA
 from sklearn.model_selection import GridSearchCV
 
-from .bam_process import process_bam
+from .bam_process import make_array_set
 from .utils import echo
 
 
 def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
                     chunksize: int = 100, contig: str = "chrM",
                     cross_validations: int = 3, verbosity: int = 1):
-    arr = []
-    for bam in positive_bams + negative_bams:
-        echo("Calculating features for {0}".format(bam.name))
-        arr.append(process_bam(bam, chunksize, contig))
-        echo("Done calculating features for {0}".format(bam.name))
-    arr = np.array(arr)
-    Y = np.array(["pos"]*len(positive_bams) + ["neg"]*len(negative_bams))
+    labels = ["pos"]*len(positive_bams) + ["neg"]*len(negative_bams)
+    arr_X, arr_Y = make_array_set(positive_bams+negative_bams, labels,
+                                  chunksize, contig)
     estimators = [
         ("scale", StandardScaler()),
         ("reduce_dim", PCA()),
@@ -48,8 +44,8 @@ def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
 
     # components MUST fall between 0 ... min(n_samples, n_features)
     # cross-validation additionally reduces amount of samples
-    n_samples = int((len(arr) * (1 - (1/cross_validations))))
-    max_components = min(n_samples, len(arr[0]))
+    n_samples = int(arr_X.shape[0] * (1 - (1/cross_validations)))
+    max_components = min(n_samples, arr_X.shape[1])
     components_params = list(range(1, max_components+1, 10))
     param_grid = {
         "reduce_dim__n_components": components_params,
@@ -64,5 +60,5 @@ def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
                             scoring="accuracy", verbose=verbosity)
     echo("Starting grid search for SVC model with {0} "
          "cross validations".format(cross_validations))
-    searcher.fit(arr, Y)
-    echo(searcher.cv_results_)
+    searcher.fit(arr_X, arr_Y)
+    echo(searcher.best_params_)
