@@ -24,6 +24,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.svm import SVC, OneClassSVM
 from sklearn.decomposition import PCA
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import confusion_matrix
 
 from .bam_process import make_array_set
 from .utils import echo
@@ -31,10 +32,11 @@ from .utils import echo
 
 def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
                     chunksize: int = 100, contig: str = "chrM",
-                    cross_validations: int = 3, verbosity: int = 1):
+                    cross_validations: int = 3, verbosity: int = 1,
+                    cores: int = 1):
     labels = ["pos"]*len(positive_bams) + ["neg"]*len(negative_bams)
     arr_X, arr_Y = make_array_set(positive_bams+negative_bams, labels,
-                                  chunksize, contig)
+                                  chunksize, contig, cores)
     estimators = [
         ("scale", StandardScaler()),
         ("reduce_dim", PCA()),
@@ -57,8 +59,14 @@ def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
     pipeline = Pipeline(estimators)
     searcher = GridSearchCV(pipeline, cv=cross_validations,
                             param_grid=param_grid,
-                            scoring="accuracy", verbose=verbosity)
+                            scoring="accuracy", verbose=verbosity,
+                            n_jobs=cores)
     echo("Starting grid search for SVC model with {0} "
          "cross validations".format(cross_validations))
     searcher.fit(arr_X, arr_Y)
     echo(searcher.best_params_)
+
+    # evaluating on train set = BAD!
+    pred_Y = searcher.predict(arr_X)
+    confused = confusion_matrix(arr_Y, pred_Y)
+    echo(confused)

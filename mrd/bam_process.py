@@ -20,6 +20,8 @@ bam_process.py
 
 Process bam file to numpy array for classifications.
 """
+from functools import partial
+from multiprocessing import Pool
 from pathlib import Path
 from typing import Iterator, Tuple, Callable, List, Any
 
@@ -67,6 +69,7 @@ def coverage(reader: AlignmentFile, contig: str, region: Tuple[int, int],
 def process_bam(path: Path, chunksize: int = 100,
                 contig: str = "chrM") -> np.ndarray:
     """Process bam file to an ndarray"""
+    echo("Calculating features for {0}".format(path.name))
     reader = AlignmentFile(str(path))
     try:
         ctg_idx = reader.references.index(contig)
@@ -84,23 +87,24 @@ def process_bam(path: Path, chunksize: int = 100,
         softclip = softclip_bases(reader, contig, region)
         block += [n_reads, cov, softclip]
         arr += block
+    echo("Done calculating features for {0}".format(path.name))
     return np.array(arr)
 
 
 def make_array_set(bam_files: List[Path], labels: List[Any],
                    chunksize: int = 100,
-                   contig: str = "chrM") -> Tuple[np.ndarray, np.ndarray]:
+                   contig: str = "chrM",
+                   cores: int = 1) -> Tuple[np.ndarray, np.ndarray]:
     """
     Make set of numpy arrays corresponding to data  and labels.
     I.e. train/testX and train/testY in scikit-learn parlance.
 
     :param bam_files: List of paths to bam files
     :param labels: list of labels.
+    :param cores: number of cores to use for processing
     :return: tuple of X and Y numpy arrays. X = 2d, Y = 1d
     """
-    arr_X = []
-    for bam in bam_files:
-        echo("Calculating features for {0}".format(bam.name))
-        arr_X.append(process_bam(bam, chunksize, contig))
-        echo("Done calculating features for {0}".format(bam.name))
+    pool = Pool(cores)
+    proc_func = partial(process_bam, chunksize=chunksize, contig=contig)
+    arr_X = pool.map(proc_func, bam_files)
     return np.array(arr_X), np.array(labels)

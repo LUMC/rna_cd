@@ -23,20 +23,7 @@ from .models import train_svm_model
 from .utils import load_list_file, dir_to_bam_list
 
 
-def check_required(ctx):
-    """check required mutually exclusive options"""
-    if ("positives_dir" not in ctx.params
-            and "positives_list" not in ctx.params):
-        raise click.BadParameter("Must set --positives-dir "
-                                 "or --positives-list.")
-    elif ("negatives_dir" not in ctx.params
-          and "negatives_list" not in ctx.params):
-        raise click.BadParameter("Must set --negatives-dir "
-                                 "or --negatives-list.")
-
-
 def directory_callback(ctx, param, value):
-    check_required(ctx)
     if value is None:
         return None
 
@@ -50,7 +37,6 @@ def directory_callback(ctx, param, value):
 
 
 def list_callback(ctx, param, value):
-    check_required(ctx)
     if value is None:
         return None
 
@@ -84,16 +70,24 @@ def list_callback(ctx, param, value):
               callback=list_callback)
 @click.option("--cross-validations", type=click.INT, default=3)
 @click.option("--verbosity", type=click.INT, default=1)
+@click.option("-j", "--cores", type=click.INT, default=1)
 def train_cli(chunksize: int, contig: str,
               positives_dir: Optional[List[Path]] = None,
               negatives_dir: Optional[List[Path]] = None,
               positives_list: Optional[List[Path]] = None,
               negatives_list: Optional[List[Path]] = None,
               cross_validations: int = 3,
-              verbosity: int = 1):
+              verbosity: int = 1, cores: int = 1):
+
+    if positives_dir is None and positives_list is None:
+        raise ValueError("Must set either --positives-dir or --positives-list")
+
+    if negatives_dir is None and negatives_list is None:
+        raise ValueError("Must set either --negatives-dir or --negatives-list")
 
     positives = positives_dir if positives_dir is not None else positives_list
     negatives = negatives_dir if negatives_dir is not None else negatives_list
 
     train_svm_model(positives, negatives, chunksize=chunksize, contig=contig,
-                    cross_validations=cross_validations, verbosity=verbosity)
+                    cross_validations=cross_validations, verbosity=verbosity,
+                    cores=cores)
