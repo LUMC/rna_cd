@@ -49,7 +49,7 @@ def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
     # cross-validation additionally reduces amount of samples
     n_samples = int(arr_X.shape[0] * (1 - (1/cross_validations)))
     max_components = min(n_samples, arr_X.shape[1])
-    components_params = list(range(1, max_components+1, 10))
+    components_params = list(range(2, max_components))
     param_grid = {
         "reduce_dim__n_components": components_params,
         "reduce_dim__whiten": [False, True],
@@ -61,7 +61,7 @@ def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
     searcher = GridSearchCV(pipeline, cv=cross_validations,
                             param_grid=param_grid,
                             scoring="accuracy", verbose=verbosity,
-                            n_jobs=cores)
+                            pre_dispatch=1, n_jobs=cores)
     echo("Starting grid search for SVC model with {0} "
          "cross validations".format(cross_validations))
     searcher.fit(arr_X, arr_Y)
@@ -80,7 +80,8 @@ def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
 
 def plot_pca(searcher: GridSearchCV, arr_X: np.ndarray, arr_Y: np.ndarray,
              img_out: Path) -> None:
-    """Plot PCA with training samples and predictions of pipeline"""
+    """Plot PCA with training samples and predictions of pipeline
+    and decision boundaries"""
     # evaluating on train set = BAD!
     pred_Y = searcher.predict(arr_X)
 
@@ -95,8 +96,14 @@ def plot_pca(searcher: GridSearchCV, arr_X: np.ndarray, arr_Y: np.ndarray,
     pos_pred_X_transformed = best_pca.transform(pos_pred_X)
     neg_pred_X_transformed = best_pca.transform(neg_pred_X)
 
+    contour_set = create_contour_dataset(arr_X)
+    # TODO fix Z's shape
+    Z = searcher.decision_function(contour_set).reshape(contour_set.shape)
+    contour_transformed = best_pca.transform(contour_set)
+
     fig = plt.figure(figsize=(6, 11))
     ax = fig.add_subplot(111)
+    ax.contourf(contour_transformed[:, 0], contour_set[:, 1], Z, alpha=0.8)
     ax.scatter(pos_X_transformed[:, 0], pos_X_transformed[:, 1],
                color="red", label="Train positives")
     ax.scatter(neg_X_transformed[:, 0], neg_X_transformed[:, 1],
@@ -109,3 +116,24 @@ def plot_pca(searcher: GridSearchCV, arr_X: np.ndarray, arr_Y: np.ndarray,
     ax.set_ylabel("2nd component")
     ax.legend()
     fig.savefig(str(img_out), format="png", dpi=300)
+
+
+def create_contour_dataset(arr_X: np.ndarray,
+                           data_points: int = 5000) -> np.ndarray:
+    """Create a contour dataset for use with decision function"""
+    new = []
+
+    for row in np.transpose(arr_X):
+        min_v = min(row) * 1.2
+        max_v = max(row) * 0.8
+        h = (max_v - min_v) / data_points
+        n = list(np.arange(min_v, max_v, h))
+        if len(n) > data_points:
+            n = n[:data_points]
+        elif len(n) < data_points:
+            to_pad = data_points - len(n)
+            last = n[-1]
+            n += [last]*to_pad
+        new.append(n)
+
+    return np.transpose(np.array(new))

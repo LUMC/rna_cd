@@ -80,15 +80,19 @@ def process_bam(path: Path, chunksize: int = 100,
     contig_size = reader.lengths[ctg_idx]
 
     arr = []
+    tot_reads = 0
     for region in chop_contig(contig_size, chunksize):
         block = []
         n_reads = reader.count(contig=contig, start=region[0], stop=region[1])
+        tot_reads += n_reads
         cov = coverage(reader, contig, region)
         softclip = softclip_bases(reader, contig, region)
         block += [n_reads, cov, softclip]
         arr += block
+    # add normalization step
+    normalized = np.array(arr) / tot_reads
     echo("Done calculating features for {0}".format(path.name))
-    return np.array(arr)
+    return normalized
 
 
 def make_array_set(bam_files: List[Path], labels: List[Any],
