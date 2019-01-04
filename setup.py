@@ -1,10 +1,10 @@
 from setuptools import setup, find_packages
 
-from mrd import VERSION
+from rna_cd import VERSION
 
 setup(
-    name="mrd",
-    description="mouse-rna detection",
+    name="rna_cd",
+    description="RNA contamination detection",
     version=str(VERSION),
     author="Sander Bollen",
     author_email="a.h.b.bollen@lumc.nl",
@@ -18,7 +18,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "mrd-train = mrd.cli:train_cli"
+            "rna_cd-train = rna_cd.cli:train_cli"
         ]
     }
 )
