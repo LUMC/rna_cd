@@ -22,17 +22,11 @@ import joblib
 import click
 import sklearn
 
+import io
+import base64
+import json
 
-class VersionInfo(NamedTuple):
-    major: int
-    minor: int
-    patch: int
-
-    def __str__(self):
-        return "{0}.{1}.{2}".format(
-            self.major, self.minor, self.patch
-        )
-
+from semver import VersionInfo
 
 VERSION = VersionInfo(0, 0, 1)
 
@@ -56,11 +50,31 @@ def dir_to_bam_list(path: Path) -> List[Path]:
 
 
 def save_sklearn_object_to_disk(obj: Any, path: Path):
-    """Save an object with some metadata to disk"""
+    """Save an object with some metadata to disk as serialized JSON"""
+    b = io.BytesIO()
     d = {
-        "mrd_version": str(VERSION),
+        "rna_cd_version": str(VERSION),
         "sklearn_version": sklearn.__version__,
-        "datetime_stored": str(datetime.datetime.utcnow()),
-        "object": obj
+        "datetime_stored": str(datetime.datetime.utcnow())
     }
-    joblib.dump(d, str(path))
+    joblib.dump(obj, b, compress=True)
+    dumped = b.getvalue()
+    base64_encoded = base64.b64encode(dumped)
+    d['obj'] = base64_encoded.decode('utf-8')
+    with path.open("w") as handle:
+        json.dump(d, handle)
+
+
+def load_sklearn_object_from_disk(path: Path) -> Any:
+    """Load a JSON-serialized object from disk"""
+    with path.open("r") as handle:
+        d = json.load(handle)
+    if VersionInfo.parse(
+            d.get("sklearn_version", "0.0.0").split(".")[1]
+    ) < VersionInfo(0, 20, 0):
+        raise ValueError("We do not support loading objects with sklearn "
+                         "versions below 0.20.0")
+    blob = base64.b64decode(d.get("obj", ""))
+    file_like_obj = io.BytesIO(blob)
+    loaded = joblib.load(file_like_obj)
+    return loaded

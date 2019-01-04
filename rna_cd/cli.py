@@ -97,4 +97,4 @@ def train_cli(chunksize: int, contig: str, model_out: Path,
                             verbosity=verbosity, cores=cores,
                             plot_out=plot_out)
 
-    save_sklearn_object_to_disk(model, model_out)
+    save_sklearn_object_to_disk(model, Path(model_out))
