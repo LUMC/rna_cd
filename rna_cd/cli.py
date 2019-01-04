@@ -19,8 +19,10 @@ import click
 from pathlib import Path
 from typing import Optional, List
 
-from .models import train_svm_model
-from .utils import load_list_file, dir_to_bam_list, save_sklearn_object_to_disk
+from .models import train_svm_model, predict_labels_and_prob
+from .utils import (load_list_file, dir_to_bam_list,
+                    save_sklearn_object_to_disk,
+                    load_sklearn_object_from_disk)
 
 
 def directory_callback(ctx, param, value):
@@ -81,7 +83,7 @@ def train_cli(chunksize: int, contig: str, model_out: Path,
               negatives_list: Optional[List[Path]] = None,
               cross_validations: int = 3,
               verbosity: int = 1, cores: int = 1,
-              plot_out: Optional[Path] = None):
+              plot_out: Optional[str] = None):
 
     if positives_dir is None and positives_list is None:
         raise ValueError("Must set either --positives-dir or --positives-list")
@@ -98,3 +100,30 @@ def train_cli(chunksize: int, contig: str, model_out: Path,
                             plot_out=plot_out)
 
     save_sklearn_object_to_disk(model, Path(model_out))
+
+
+@click.command()
+@click.option("--chunksize", type=click.INT, default=100)
+@click.option("-c", "--contig", type=click.STRING, default="chrM")
+@click.option("-j", "--cores", type=click.INT, default=1)
+@click.option("-d", "--directory",
+              type=click.Path(exists=True, readable=True,
+                              dir_okay=True, file_okay=False),
+              callback=directory_callback)
+@click.option("-l", "--list-items",
+              type=click.Path(exists=True, readable=True,
+                              file_okay=True, dir_okay=False),
+              callback=list_callback)
+@click.option("-m", "--model",
+              type=click.Path(exists=True, readable=True,
+                              file_okay=True, dir_okay=False)
+              )
+def classify_cli(chunksize: int, contig: str, cores: int,
+                 directory: Optional[List[Path]],
+                 list_items: Optional[List[Path]], model: str):
+    bam_files = directory if directory is not None else list_items
+    sklearn_model = load_sklearn_object_from_disk(Path(model))
+    predictions = predict_labels_and_prob(sklearn_model, bam_files,
+                                          chunksize=chunksize,
+                                          contig=contig, cores=cores)
+    print(predictions)

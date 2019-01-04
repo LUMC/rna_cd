@@ -19,7 +19,8 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "rna_cd-train = rna_cd.cli:train_cli"
+            "rna_cd-train = rna_cd.cli:train_cli",
+            "rna_cd-classify = rna_cd.cli:classify_cli"
         ]
     }
 )

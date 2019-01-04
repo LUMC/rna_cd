@@ -70,7 +70,7 @@ def load_sklearn_object_from_disk(path: Path) -> Any:
     with path.open("r") as handle:
         d = json.load(handle)
     if VersionInfo.parse(
-            d.get("sklearn_version", "0.0.0").split(".")[1]
+            d.get("sklearn_version", "0.0.0")
     ) < VersionInfo(0, 20, 0):
         raise ValueError("We do not support loading objects with sklearn "
                          "versions below 0.20.0")
