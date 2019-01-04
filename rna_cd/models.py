@@ -16,7 +16,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -55,7 +55,8 @@ def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
         "reduce_dim__whiten": [False, True],
         "svm__gamma": [0.1, 0.01, 0.001, 0.0001,
                        1, 10, 100, 1000],
-        "svm__shrinking": [True, False]
+        "svm__shrinking": [True, False],
+        "svm__probability": [True]
     }
     pipeline = Pipeline(estimators)
     searcher = GridSearchCV(pipeline, cv=cross_validations,
@@ -110,3 +111,24 @@ def plot_pca(searcher: GridSearchCV, arr_X: np.ndarray, arr_Y: np.ndarray,
     ax.set_ylabel("2nd component")
     ax.legend()
     fig.savefig(str(img_out), format="png", dpi=300)
+
+
+def predict_labels_and_prob(model, bam_files: List[Path],
+                            chunksize: int = 100, contig: str = "chrM",
+                            cores: int = 1) -> Tuple[List[str], List[float]]:
+    """
+    Predict labels and probabilities for a list of bam files.
+
+    Returns tuple of List[predicted classes],
+    List[probability for the most likely class]
+    """
+    bam_arr, _ = make_array_set(bam_files, [], chunksize, contig, cores)
+    prob = model.predict_proba(bam_arr)
+    classes = []
+    most_likely_prob = []
+    for sample in prob:
+        likely = max(sample)
+        most_likely_prob.append(likely)
+        classs = model.classes_[np.where(sample==likely)][0]
+        classes.append(classs)
+    return classes, most_likely_prob
