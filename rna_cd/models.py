@@ -96,14 +96,8 @@ def plot_pca(searcher: GridSearchCV, arr_X: np.ndarray, arr_Y: np.ndarray,
     pos_pred_X_transformed = best_pca.transform(pos_pred_X)
     neg_pred_X_transformed = best_pca.transform(neg_pred_X)
 
-    contour_set = create_contour_dataset(arr_X)
-    # TODO fix Z's shape
-    Z = searcher.decision_function(contour_set).reshape(contour_set.shape)
-    contour_transformed = best_pca.transform(contour_set)
-
     fig = plt.figure(figsize=(6, 11))
     ax = fig.add_subplot(111)
-    ax.contourf(contour_transformed[:, 0], contour_set[:, 1], Z, alpha=0.8)
     ax.scatter(pos_X_transformed[:, 0], pos_X_transformed[:, 1],
                color="red", label="Train positives")
     ax.scatter(neg_X_transformed[:, 0], neg_X_transformed[:, 1],
@@ -116,24 +110,3 @@ def plot_pca(searcher: GridSearchCV, arr_X: np.ndarray, arr_Y: np.ndarray,
     ax.set_ylabel("2nd component")
     ax.legend()
     fig.savefig(str(img_out), format="png", dpi=300)
-
-
-def create_contour_dataset(arr_X: np.ndarray,
-                           data_points: int = 5000) -> np.ndarray:
-    """Create a contour dataset for use with decision function"""
-    new = []
-
-    for row in np.transpose(arr_X):
-        min_v = min(row) * 1.2
-        max_v = max(row) * 0.8
-        h = (max_v - min_v) / data_points
-        n = list(np.arange(min_v, max_v, h))
-        if len(n) > data_points:
-            n = n[:data_points]
-        elif len(n) < data_points:
-            to_pad = data_points - len(n)
-            last = n[-1]
-            n += [last]*to_pad
-        new.append(n)
-
-    return np.transpose(np.array(new))
