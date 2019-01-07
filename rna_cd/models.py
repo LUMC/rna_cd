@@ -81,21 +81,14 @@ def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
 
 def plot_pca(searcher: GridSearchCV, arr_X: np.ndarray, arr_Y: np.ndarray,
              img_out: Path) -> None:
-    """Plot PCA with training samples and predictions of pipeline
-    and decision boundaries"""
-    # evaluating on train set = BAD!
-    pred_Y = searcher.predict(arr_X)
+    """Plot PCA with training samples of pipeline."""
 
     pos_X = arr_X[arr_Y == "pos"]
     neg_X = arr_X[arr_Y == "neg"]
-    pos_pred_X = arr_X[pred_Y == "pos"]
-    neg_pred_X = arr_X[pred_Y == "neg"]
 
     best_pca = searcher.best_estimator_.named_steps['reduce_dim']
     pos_X_transformed = best_pca.transform(pos_X)
     neg_X_transformed = best_pca.transform(neg_X)
-    pos_pred_X_transformed = best_pca.transform(pos_pred_X)
-    neg_pred_X_transformed = best_pca.transform(neg_pred_X)
 
     fig = plt.figure(figsize=(6, 11))
     ax = fig.add_subplot(111)
@@ -103,10 +96,6 @@ def plot_pca(searcher: GridSearchCV, arr_X: np.ndarray, arr_Y: np.ndarray,
                color="red", label="Train positives")
     ax.scatter(neg_X_transformed[:, 0], neg_X_transformed[:, 1],
                color="blue", label="Train negatives")
-    ax.scatter(pos_pred_X_transformed[:, 0], pos_pred_X_transformed[:, 1],
-               color="red", marker="+")
-    ax.scatter(neg_pred_X_transformed[:, 0], neg_pred_X_transformed[:, 1],
-               color="blue", marker=(5, 2))
     ax.set_xlabel("1st component")
     ax.set_ylabel("2nd component")
     ax.legend()
