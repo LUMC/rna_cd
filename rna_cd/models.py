@@ -22,7 +22,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC, OneClassSVM
+from sklearn.svm import SVC
 from sklearn.decomposition import PCA
 from sklearn.model_selection import GridSearchCV
 
@@ -118,6 +118,6 @@ def predict_labels_and_prob(model, bam_files: List[Path],
     for sample in prob:
         likely = max(sample)
         most_likely_prob.append(likely)
-        classs = model.classes_[np.where(sample==likely)][0]
+        classs = model.classes_[np.where(sample == likely)][0]
         classes.append(classs)
     return classes, most_likely_prob
