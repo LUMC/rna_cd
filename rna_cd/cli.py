@@ -22,7 +22,7 @@ from typing import Optional, List
 from .models import train_svm_model, predict_labels_and_prob
 from .utils import (load_list_file, dir_to_bam_list,
                     save_sklearn_object_to_disk,
-                    load_sklearn_object_from_disk)
+                    load_sklearn_object_from_disk, echo)
 
 
 def directory_callback(ctx, param, value):
@@ -49,6 +49,13 @@ def list_callback(ctx, param, value):
         raise click.BadParameter("--negatives-list and --negatives-dir "
                                  "are mutually exclusive.")
     return load_list_file(Path(value))
+
+
+def path_callback(ctx, param, value):
+    """Generic str to path callback"""
+    if value is None:
+        return None
+    return Path(value)
 
 
 @click.command()
@@ -116,14 +123,31 @@ def train_cli(chunksize: int, contig: str, model_out: Path,
               callback=list_callback)
 @click.option("-m", "--model",
               type=click.Path(exists=True, readable=True,
-                              file_okay=True, dir_okay=False)
+                              file_okay=True, dir_okay=False),
+              callback=path_callback
               )
+@click.option("-o", "--output", type=click.Path(writable=True),
+              required=True, callback=path_callback)
 def classify_cli(chunksize: int, contig: str, cores: int,
                  directory: Optional[List[Path]],
-                 list_items: Optional[List[Path]], model: str):
+                 list_items: Optional[List[Path]], model: Path,
+                 output: Path):
     bam_files = directory if directory is not None else list_items
-    sklearn_model = load_sklearn_object_from_disk(Path(model))
+    echo("Loading model from disk.")
+    sklearn_model = load_sklearn_object_from_disk(model)
+    echo("Running predictions.")
     predictions = predict_labels_and_prob(sklearn_model, bam_files,
                                           chunksize=chunksize,
                                           contig=contig, cores=cores)
-    print(predictions)
+    echo("Writing predictions to disk.")
+    with output.open("w") as ohandle:
+        header = 'filename\tpredicted_class\tclass_probability\n'
+        ohandle.write(header)
+        for i, bam in enumerate(bam_files):
+            fmt = "{fname}\t{cl}\t{prob}\n".format(
+                fname=bam.name,
+                cl=predictions[0][i],
+                prob=predictions[1][i]
+            )
+            ohandle.write(fmt)
+    echo("Done.")
