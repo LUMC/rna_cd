@@ -59,30 +59,47 @@ def path_callback(ctx, param, value):
 
 
 @click.command()
-@click.option("--chunksize", type=click.INT, default=100)
-@click.option("-c", "--contig", type=click.STRING, default="chrM")
+@click.option("--chunksize", type=click.INT, default=100,
+              help="Chunksize in bases. Default = 100")
+@click.option("-c", "--contig", type=click.STRING, default="chrM",
+              help="Name of mitochrondrial contig in your BAM files. "
+                   "Default = chrM")
 @click.option("-pd", "--positives-dir",
               type=click.Path(exists=True, dir_okay=True,
                               file_okay=False, readable=True),
-              callback=directory_callback)
+              callback=directory_callback,
+              help="Path to directory containing positive BAM files. "
+                   "Mutually exclusive with --positives-list")
 @click.option("-nd", "--negatives-dir",
               type=click.Path(exists=True, dir_okay=True,
                               file_okay=False, readable=True),
-              callback=directory_callback)
+              callback=directory_callback,
+              help="Path to directory containing negative BAM files. "
+                   "Mutually exlusive with --negatives-list")
 @click.option("-pl", "--positives-list",
               type=click.Path(exists=True, dir_okay=False,
                               file_okay=True, readable=True),
-              callback=list_callback)
+              callback=list_callback,
+              help="Path to file containing a list of paths to positive BAM "
+                   "files. Mutually exclusive with --positives-dir")
 @click.option("-nl", "--negatives-list",
               type=click.Path(exists=True, dir_okay=False,
                               file_okay=True, readable=True),
-              callback=list_callback)
-@click.option("--cross-validations", type=click.INT, default=3)
-@click.option("--verbosity", type=click.INT, default=1)
-@click.option("-j", "--cores", type=click.INT, default=1)
-@click.option("--plot-out", type=click.Path(writable=True))
+              callback=list_callback,
+              help="Path to file containing a list of paths to negative BAM "
+                   "files. Mutuallly exclusive with --negatives-dir")
+@click.option("--cross-validations", type=click.INT, default=3,
+              help="Number of folds for cross validation run. Default = 3")
+@click.option("--verbosity", type=click.INT, default=1,
+              help="Verbosity value for cross validation step. Default = 1")
+@click.option("-j", "--cores", type=click.INT, default=1,
+              help="Number of cores to use for processing of BAM files "
+                   "and cross validations. Default = 1")
+@click.option("--plot-out", type=click.Path(writable=True),
+              help="Optional path to PCA plot.")
 @click.option("-o", "--model-out", type=click.Path(writable=True),
-              required=True)
+              required=True,
+              help="Path where model will be stored.")
 def train_cli(chunksize: int, contig: str, model_out: Path,
               positives_dir: Optional[List[Path]] = None,
               negatives_dir: Optional[List[Path]] = None,
