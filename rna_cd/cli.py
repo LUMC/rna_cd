@@ -127,24 +127,35 @@ def train_cli(chunksize: int, contig: str, model_out: Path,
 
 
 @click.command()
-@click.option("--chunksize", type=click.INT, default=100)
-@click.option("-c", "--contig", type=click.STRING, default="chrM")
-@click.option("-j", "--cores", type=click.INT, default=1)
+@click.option("--chunksize", type=click.INT, default=100,
+              help="Chunksize in bases. Default = 100")
+@click.option("-c", "--contig", type=click.STRING, default="chrM",
+              help="Name of mitochrondrial contig in your BAM files. "
+                   "Default = chrM")
+@click.option("-j", "--cores", type=click.INT, default=1,
+              help="Number of cores to use for processing of BAM files. "
+                   "Default = 1")
 @click.option("-d", "--directory",
               type=click.Path(exists=True, readable=True,
                               dir_okay=True, file_okay=False),
-              callback=directory_callback)
+              callback=directory_callback,
+              help="Path to directory with BAM files to be tested. "
+                   "Mutually exclusive with --list-items")
 @click.option("-l", "--list-items",
               type=click.Path(exists=True, readable=True,
                               file_okay=True, dir_okay=False),
-              callback=list_callback)
+              callback=list_callback,
+              help="Path to file containing list of paths to BAM files to be "
+                   "tested. Mutually exclusive with --directory")
 @click.option("-m", "--model",
               type=click.Path(exists=True, readable=True,
                               file_okay=True, dir_okay=False),
-              callback=path_callback
+              callback=path_callback,
+              help="Path to model."
               )
 @click.option("-o", "--output", type=click.Path(writable=True),
-              required=True, callback=path_callback)
+              required=True, callback=path_callback,
+              help="Path to output file containing classifications.")
 def classify_cli(chunksize: int, contig: str, cores: int,
                  directory: Optional[List[Path]],
                  list_items: Optional[List[Path]], model: Path,
