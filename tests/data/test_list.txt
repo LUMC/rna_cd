@@ -1,0 +1,9 @@
+/path/to/bam1.bam
+/path/to/bam2.bam
+/path/to/bam3.bam
+/path/to/bam4.bam
+/path/to/bam5.bam
+/path/to/bam6.bam
+/path/to/bam7.bam
+/path/to/bam8.bam
+/path/to/bam9.bam
