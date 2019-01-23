@@ -22,7 +22,8 @@ from pathlib import Path
 
 import pytest
 
-from rna_cd.cli import directory_callback, list_callback, path_callback
+from rna_cd.cli import (directory_callback, list_callback, path_callback,
+                        train_cli)
 
 MockParam = namedtuple("MockParam", ["name"])
 MockCtx = namedtuple("MockCtx", ["params"])
@@ -96,6 +97,14 @@ path_callback_data = [
 ]
 
 
+train_cli_errors_data = [
+    (["-o", "some_random_path"],
+     ValueError("Must set either --positives-dir or --positives-list")),
+    (["-o", "some_random_path", "-pl", str(_listf)],
+     ValueError("Must set either --negatives-dir or --negatives-list"))
+]
+
+
 @pytest.mark.parametrize("args, expected", dir_callback_data)
 def test_dir_callback(args, expected):
     if isinstance(expected, Exception):
@@ -119,3 +128,12 @@ def test_list_callback(args, expected):
 @pytest.mark.parametrize("value, expected", path_callback_data)
 def test_path_callback(value, expected):
     assert path_callback(None, None, value) == expected
+
+
+@pytest.mark.parametrize("args, expected", train_cli_errors_data)
+def test_train_cli_errors(args, expected):
+    runner = CliRunner()
+    result = runner.invoke(train_cli, args)
+    assert result.exit_code != 0
+    assert type(result.exception) == type(expected)
+    assert result.exception.args[0] == expected.args[0]
