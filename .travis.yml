@@ -10,4 +10,6 @@ install:
   - pip install -r requirements-dev.txt
 script:
   - flake8 --statistics tests rna_cd
-  - py.test -v --cov=rna_cd --cov-report=term-missing tests rna_cd
+  - coverage run --source=rna_cd -m py.test -v tests
+  - coverage xml
+  - coverage report -m
