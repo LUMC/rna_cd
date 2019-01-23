@@ -6,6 +6,7 @@ matrix:
     - python: "3.7"
       dist: xenial
 install:
+  - pip install codecov
   - pip install -r requirements.txt
   - pip install -r requirements-dev.txt
   - python setup.py install
@@ -14,3 +15,5 @@ script:
   - coverage run --source=rna_cd -m py.test -v tests
   - coverage xml
   - coverage report -m
+after_success:
+  - codecov
