@@ -15,7 +15,8 @@ setup(
         "scikit-learn",
         "pysam",
         "matplotlib",
-        "semver"
+        "semver",
+        "joblib"
     ],
     entry_points={
         "console_scripts": [
