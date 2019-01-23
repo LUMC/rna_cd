@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/LUMC/rna_cd.svg?branch=master)](https://travis-ci.org/LUMC/rna_cd) [![codecov](https://codecov.io/gh/LUMC/rna_cd/branch/master/graph/badge.svg)](https://codecov.io/gh/LUMC/rna_cd)
 # RNA Contamination Detection
 
 Detect contaminations of mouse or human RNA in human DNA Illumina reads. 
