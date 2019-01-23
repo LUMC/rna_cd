@@ -150,7 +150,7 @@ def train_cli(chunksize: int, contig: str, model_out: Path,
 @click.option("-m", "--model",
               type=click.Path(exists=True, readable=True,
                               file_okay=True, dir_okay=False),
-              callback=path_callback,
+              callback=path_callback, required=True,
               help="Path to model."
               )
 @click.option("-o", "--output", type=click.Path(writable=True),

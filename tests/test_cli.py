@@ -23,7 +23,7 @@ from pathlib import Path
 import pytest
 
 from rna_cd.cli import (directory_callback, list_callback, path_callback,
-                        train_cli)
+                        train_cli, classify_cli)
 
 MockParam = namedtuple("MockParam", ["name"])
 MockCtx = namedtuple("MockCtx", ["params"])
@@ -105,6 +105,12 @@ train_cli_errors_data = [
 ]
 
 
+classify_cli_errors_data = [
+    (["-m", str(_listf), "-o", "someething"],
+    ValueError("Must set either --directory or --list-items"))
+]
+
+
 @pytest.mark.parametrize("args, expected", dir_callback_data)
 def test_dir_callback(args, expected):
     if isinstance(expected, Exception):
@@ -134,6 +140,15 @@ def test_path_callback(value, expected):
 def test_train_cli_errors(args, expected):
     runner = CliRunner()
     result = runner.invoke(train_cli, args)
+    assert result.exit_code != 0
+    assert type(result.exception) == type(expected)
+    assert result.exception.args[0] == expected.args[0]
+
+
+@pytest.mark.parametrize("args, expected", classify_cli_errors_data)
+def test_classify_cli_errors(args, expected):
+    runner = CliRunner()
+    result = runner.invoke(classify_cli, args)
     assert result.exit_code != 0
     assert type(result.exception) == type(expected)
     assert result.exception.args[0] == expected.args[0]
