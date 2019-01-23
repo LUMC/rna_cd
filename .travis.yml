@@ -8,7 +8,6 @@ matrix:
 install:
   - pip install -r requirements.txt
   - pip install -r requirements-dev.txt
-  - python setup.py install
 script:
   - flake8 --statistics tests rna_cd
   - py.test -v --cov=rna_cd --cov-report=term-missing tests
