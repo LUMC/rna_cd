@@ -107,7 +107,7 @@ train_cli_errors_data = [
 
 classify_cli_errors_data = [
     (["-m", str(_listf), "-o", "someething"],
-    ValueError("Must set either --directory or --list-items"))
+     ValueError("Must set either --directory or --list-items"))
 ]
 
 
