@@ -15,3 +15,84 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+from click.testing import CliRunner
+from click import BadParameter
+from collections import namedtuple
+from pathlib import Path
+
+import pytest
+
+from rna_cd.cli import directory_callback, list_callback
+
+MockParam = namedtuple("MockParam", ["name"])
+MockCtx = namedtuple("MockCtx", ["params"])
+
+
+# cannot use a fixture here because pytest hairiness around parametrizations.
+# see https://github.com/pytest-dev/pytest/issues/349
+_listf = Path(__file__).parent / Path("data") / Path("test_list.txt")
+_bamf = Path(__file__).parent / Path("data") / Path("test_bam_cram")
+
+
+dir_callback_data = [
+    ([None, None, None], None),
+    ([MockCtx(["positives_list"]), MockParam("positives_dir"), ""],
+     BadParameter('')),
+    ([MockCtx(["negatives_list"]), MockParam("negatives_dir"), ""],
+     BadParameter('')),
+    ([MockCtx([]), MockParam("positives_dir"), str(_bamf)], [
+        Path(_bamf) / Path("1.bam"), Path(_bamf) / Path("1.cram"),
+        Path(_bamf) / Path("2.bam"), Path(_bamf) / Path("2.cram"),
+        Path(_bamf) / Path("3.bam"), Path(_bamf) / Path("3.cram"),
+        Path(_bamf) / Path("4.bam"), Path(_bamf) / Path("4.cram"),
+        Path(_bamf) / Path("5.bam"), Path(_bamf) / Path("5.cram"),
+        Path(_bamf) / Path("6.bam"), Path(_bamf) / Path("6.cram"),
+        Path(_bamf) / Path("7.bam"), Path(_bamf) / Path("7.cram"),
+        Path(_bamf) / Path("8.bam"), Path(_bamf) / Path("8.cram"),
+        Path(_bamf) / Path("9.bam"), Path(_bamf) / Path("9.cram"),
+        Path(_bamf) / Path("10.bam"), Path(_bamf) / Path("10.cram")
+    ])
+]
+
+
+list_callback_data = [
+    ([None, None, None], None),
+    ([MockCtx(["positives_dir"]), MockParam("positives_list"), ""],
+     BadParameter("")),
+    ([MockCtx(["negatives_dir"]), MockParam("negatives_list"), ""],
+     BadParameter("")),
+    ([MockCtx([]), MockParam("positives_list"), str(_listf)], [
+        Path("/path/to/bam1.bam"), Path("/path/to/bam2.bam"),
+        Path("/path/to/bam3.bam"), Path("/path/to/bam4.bam"),
+        Path("/path/to/bam5.bam"), Path("/path/to/bam6.bam"),
+        Path("/path/to/bam7.bam"), Path("/path/to/bam8.bam"),
+        Path("/path/to/bam9.bam")
+    ]),
+    ([MockCtx([]), MockParam("negatives_list"), str(_listf)], [
+        Path("/path/to/bam1.bam"), Path("/path/to/bam2.bam"),
+        Path("/path/to/bam3.bam"), Path("/path/to/bam4.bam"),
+        Path("/path/to/bam5.bam"), Path("/path/to/bam6.bam"),
+        Path("/path/to/bam7.bam"), Path("/path/to/bam8.bam"),
+        Path("/path/to/bam9.bam")
+    ])
+]
+
+
+@pytest.mark.parametrize("args, expected", dir_callback_data)
+def test_dir_callback(args, expected):
+    if isinstance(expected, Exception):
+        with pytest.raises(type(expected)):
+            directory_callback(*args)
+    elif expected is not None:
+        assert sorted(directory_callback(*args)) == sorted(expected)
+    else:
+        assert directory_callback(*args) == expected
+
+
+@pytest.mark.parametrize("args, expected", list_callback_data)
+def test_list_callback(args, expected):
+    if isinstance(expected, Exception):
+        with pytest.raises(type(expected)):
+            list_callback(*args)
+    else:
+        assert list_callback(*args) == expected

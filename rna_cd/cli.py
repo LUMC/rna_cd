@@ -160,7 +160,12 @@ def classify_cli(chunksize: int, contig: str, cores: int,
                  directory: Optional[List[Path]],
                  list_items: Optional[List[Path]], model: Path,
                  output: Path):
+
+    if directory is None and list_items is None:
+        raise ValueError("Must set either --directory or --list-items")
+
     bam_files = directory if directory is not None else list_items
+
     echo("Loading model from disk.")
     sklearn_model = load_sklearn_object_from_disk(model)
     echo("Running predictions.")
