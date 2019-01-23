@@ -22,7 +22,7 @@ from pathlib import Path
 
 import pytest
 
-from rna_cd.cli import directory_callback, list_callback
+from rna_cd.cli import directory_callback, list_callback, path_callback
 
 MockParam = namedtuple("MockParam", ["name"])
 MockCtx = namedtuple("MockCtx", ["params"])
@@ -41,6 +41,18 @@ dir_callback_data = [
     ([MockCtx(["negatives_list"]), MockParam("negatives_dir"), ""],
      BadParameter('')),
     ([MockCtx([]), MockParam("positives_dir"), str(_bamf)], [
+        Path(_bamf) / Path("1.bam"), Path(_bamf) / Path("1.cram"),
+        Path(_bamf) / Path("2.bam"), Path(_bamf) / Path("2.cram"),
+        Path(_bamf) / Path("3.bam"), Path(_bamf) / Path("3.cram"),
+        Path(_bamf) / Path("4.bam"), Path(_bamf) / Path("4.cram"),
+        Path(_bamf) / Path("5.bam"), Path(_bamf) / Path("5.cram"),
+        Path(_bamf) / Path("6.bam"), Path(_bamf) / Path("6.cram"),
+        Path(_bamf) / Path("7.bam"), Path(_bamf) / Path("7.cram"),
+        Path(_bamf) / Path("8.bam"), Path(_bamf) / Path("8.cram"),
+        Path(_bamf) / Path("9.bam"), Path(_bamf) / Path("9.cram"),
+        Path(_bamf) / Path("10.bam"), Path(_bamf) / Path("10.cram")
+    ]),
+    ([MockCtx([]), MockParam("negatives_dir"), str(_bamf)], [
         Path(_bamf) / Path("1.bam"), Path(_bamf) / Path("1.cram"),
         Path(_bamf) / Path("2.bam"), Path(_bamf) / Path("2.cram"),
         Path(_bamf) / Path("3.bam"), Path(_bamf) / Path("3.cram"),
@@ -78,6 +90,12 @@ list_callback_data = [
 ]
 
 
+path_callback_data = [
+    (None, None),
+    ("something", Path("something"))
+]
+
+
 @pytest.mark.parametrize("args, expected", dir_callback_data)
 def test_dir_callback(args, expected):
     if isinstance(expected, Exception):
@@ -96,3 +114,8 @@ def test_list_callback(args, expected):
             list_callback(*args)
     else:
         assert list_callback(*args) == expected
+
+
+@pytest.mark.parametrize("value, expected", path_callback_data)
+def test_path_callback(value, expected):
+    assert path_callback(None, None, value) == expected
