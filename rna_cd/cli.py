@@ -178,9 +178,9 @@ def classify_cli(chunksize: int, contig: str, cores: int,
     echo("Loading model from disk.")
     sklearn_model = load_sklearn_object_from_disk(model)
     echo("Running predictions.")
-    predictions = predict_labels_and_prob(sklearn_model, bam_files,
-                                          chunksize=chunksize,
-                                          contig=contig, cores=cores)
+    predicted_classes, probabilities = predict_labels_and_prob(
+        sklearn_model, bam_files, chunksize=chunksize,
+        contig=contig, cores=cores)
     echo("Writing predictions to disk.")
     with output.open("w") as ohandle:
         header = 'filename\tpredicted_class\tclass_probability\n'
@@ -188,8 +188,8 @@ def classify_cli(chunksize: int, contig: str, cores: int,
         for i, bam in enumerate(bam_files):
             fmt = "{fname}\t{cl}\t{prob}\n".format(
                 fname=bam.name,
-                cl=predictions[0][i],
-                prob=predictions[1][i]
+                cl=predicted_classes[i],
+                prob=probabilities[i]
             )
             ohandle.write(fmt)
     echo("Done.")
