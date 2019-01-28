@@ -8,8 +8,9 @@ setup(
     version=str(VERSION),
     author="Sander Bollen",
     author_email="a.h.b.bollen@lumc.nl",
-    license="AGPLv3",
+    license="AGPLv3+",
     packages=find_packages(),
+    python_requires=">=3.5",
     install_requires=[
         "click",
         "scikit-learn",

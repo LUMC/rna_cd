@@ -16,7 +16,7 @@ We will possibly provide a pre-trained model in the future.
 
 ## Requirements
 
-* Python 3.6+
+* Python 3.5+
 * click
 * scikit-learn
 * pysam
@@ -95,4 +95,4 @@ rna_cd-classify -m model.out -l samples.list -j 8 -o pred.out
 ```
 
 ## License
-AGPLv3
+AGPLv3+
