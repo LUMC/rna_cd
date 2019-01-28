@@ -26,7 +26,11 @@ from .utils import (load_list_file, dir_to_bam_list,
                     load_sklearn_object_from_disk, echo)
 
 
+# all callback functions but adhere to the following signature:
+# def callback(ctx, param, value)
+# See https://click.palletsprojects.com/en/7.x/options/#callbacks-and-eager-options  # noqa
 def directory_callback(ctx, param, value):
+    """Click callback function for getting bam/cram files from a directory."""
     if value is None:
         return None
 
@@ -40,6 +44,7 @@ def directory_callback(ctx, param, value):
 
 
 def list_callback(ctx, param, value):
+    """Click callback function for getting bam/cram files from a list file."""
     if value is None:
         return None
 
@@ -53,7 +58,10 @@ def list_callback(ctx, param, value):
 
 
 def path_callback(ctx, param, value):
-    """Generic str to path callback"""
+    """
+    Generic str to path callback.
+    To be used for click.Path types that ought to return pathlib.Path
+    """
     if value is None:
         return None
     return Path(value)
