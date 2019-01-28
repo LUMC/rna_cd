@@ -115,9 +115,11 @@ def make_array_set(bam_files: List[Path], labels: List[Any],
     :param bam_files: List of paths to bam files
     :param labels: list of labels.
     :param cores: number of cores to use for processing
-    :return: tuple of X and Y numpy arrays. X = 2d, Y = 1d
+    :return: tuple of X and Y numpy arrays. X has shape (n_files, n_features)
+    Y has shape (n_files,).
     """
     pool = Pool(cores)
     proc_func = partial(process_bam, chunksize=chunksize, contig=contig)
+    # this returns a list of ndarrays.
     arr_X = pool.map(proc_func, bam_files)
     return np.array(arr_X), np.array(labels)
