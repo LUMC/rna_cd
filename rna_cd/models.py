@@ -155,6 +155,6 @@ def predict_labels_and_prob(model, bam_files: List[Path],
     for sample in prob:
         likely = max(sample)
         most_likely_prob.append(likely)
-        classs = model.classes_[np.where(sample == likely)][0]
-        classes.append(classs)
+        predicted_class = model.classes_[np.where(sample == likely)][0]
+        classes.append(predicted_class)
     return classes, most_likely_prob
