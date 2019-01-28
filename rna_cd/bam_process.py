@@ -50,10 +50,13 @@ def chop_contig(size: int, chunksize: int) -> Iterator[Tuple[int, int]]:
 def softclip_bases(reader: AlignmentFile, contig: str,
                    region: Tuple[int, int]) -> int:
     """Calculate amount of softclip bases for a region"""
-    it = reader.fetch(contig=contig, start=region[0], stop=region[1])
+    start, end = region
+    it = reader.fetch(contig=contig, start=start, stop=end)
     s = 0
     for read in it:
         if read.cigartuples is not None:
+            # cigartuples returns list of (operation, amount) tuple
+            # where operation == 4 means softclip
             s += sum(amount for op, amount in read.cigartuples if op == 4)
     return s
 
