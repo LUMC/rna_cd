@@ -37,6 +37,12 @@ def chop_contig(size: int, chunksize: int) -> Iterator[Tuple[int, int]]:
     For a contig of given size, generate regions maximally chunksize long
     We use _0_ based indexing
     """
+
+    if size < 1:
+        raise ValueError("Size must be at least 1.")
+    if chunksize < 1:
+        raise ValueError("Chunksize must be at least 1.")
+
     pos = 0
     while pos < size:
         end = pos + chunksize

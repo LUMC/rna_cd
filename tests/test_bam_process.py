@@ -31,6 +31,20 @@ chop_contig_data = [
 ]
 
 
+fail_contig_data = [
+    ((0, 100), ValueError("Size must be at least 1.")),
+    ((100, 0), ValueError("Chunksize must be at least 1."))
+]
+
+
 @pytest.mark.parametrize("args, expected", chop_contig_data)
 def test_chop_contig(args, expected):
     assert list(chop_contig(*args)) == expected
+
+
+@pytest.mark.parametrize("args, expected", fail_contig_data)
+def test_fail_chop_contig(args, expected):
+    with pytest.raises(type(expected)) as excinfo:
+        chopper = chop_contig(*args)
+        next(chopper)
+    assert str(excinfo.value) == str(expected)
