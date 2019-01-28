@@ -64,37 +64,42 @@ def softclip_bases(reader: AlignmentFile, contig: str,
 def coverage(reader: AlignmentFile, contig: str, region: Tuple[int, int],
              method: Callable = np.mean) -> int:
     """Calculate average/median/etc coverage for a region"""
-    covs = reader.count_coverage(contig=contig, start=region[0],
-                                 stop=region[1])
+    start, end = region
+    covs = reader.count_coverage(contig=contig, start=start, stop=end)
 
     return method(np.sum(covs))
 
 
 def process_bam(path: Path, chunksize: int = 100,
                 contig: str = "chrM") -> np.ndarray:
-    """Process bam file to an ndarray"""
+    """
+    Process bam file to an ndarray
+
+    :returns: numpy ndarray of shape (n_features,)
+    """
     echo("Calculating features for {0}".format(path.name))
     reader = AlignmentFile(str(path))
     try:
-        ctg_idx = reader.references.index(contig)
+        contig_idx = reader.references.index(contig)
     except ValueError:
         raise ValueError("Contig {0} does not exist in BAM file".format(
             contig
         ))
-    contig_size = reader.lengths[ctg_idx]
+    contig_size = reader.lengths[contig_idx]
 
-    arr = []
+    full_array = []
     tot_reads = 0
     for region in chop_contig(contig_size, chunksize):
         block = []
-        n_reads = reader.count(contig=contig, start=region[0], stop=region[1])
+        start, end = region
+        n_reads = reader.count(contig=contig, start=start, stop=end)
         tot_reads += n_reads
         cov = coverage(reader, contig, region)
         softclip = softclip_bases(reader, contig, region)
         block += [n_reads, cov, softclip]
-        arr += block
+        full_array += block
     # add normalization step
-    normalized = np.array(arr) / tot_reads
+    normalized = np.array(full_array) / tot_reads
     echo("Done calculating features for {0}".format(path.name))
     return normalized
 
