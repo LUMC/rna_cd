@@ -36,6 +36,42 @@ def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
                     cross_validations: int = 3, verbosity: int = 1,
                     cores: int = 1,
                     plot_out: Optional[Path] = None) -> GridSearchCV:
+    """
+    Run SVM training on a list of positive BAM files
+    (i.e. _with_ contamination) and a list of negative BAM files
+    (i.e. _without_ contamination).
+
+    For all bam files features are collected over one contig. This contig is
+    binned, and for each bin two different metrics of coverage are collected,
+    in addition to the softclip rate.
+
+    These features are then fed to a sklearn pipeline with three steps:
+
+    1. A scaling step using StandardScaler
+    2. A dimensional reduction step using PCA.
+    3. A classification step using an SVM.
+
+    Hyperparameters are tuned using a grid search with cross validations.
+
+    Optionally saves a plot of the top two PCA components with the training
+    samples.
+
+    :param positive_bams: List of BAM files with contaminations
+    :param negative_bams: List of BAM files without contaminations.
+    :param chunksize: The size in bases for each chunk (bin)
+    :param contig: The name of the contig.
+    :param cross_validations: The amount of cross validations
+    :param verbosity: Verbosity parameter of sklearn. Increase to see more
+    messages.
+    :param cores: Amount of cores to use for both metric collection and
+    training.
+    :param plot_out: Optional path for PCA plot.
+    :returns: GridSearchCV object containing tuned pipeline.
+    """
+    if len(positive_bams) < 1:
+        raise ValueError("The list of positive BAM files may not be empty.")
+    if len(negative_bams) < 1:
+        raise ValueError("The list of negative BAM files may not be empty.")
     labels = ["pos"]*len(positive_bams) + ["neg"]*len(negative_bams)
     arr_X, arr_Y = make_array_set(positive_bams+negative_bams, labels,
                                   chunksize, contig, cores)
