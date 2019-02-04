@@ -16,9 +16,11 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+from pathlib import Path
+from pysam import AlignmentFile
 import pytest
 
-from rna_cd.bam_process import chop_contig
+from rna_cd.bam_process import chop_contig, coverage, softclip_bases
 
 
 chop_contig_data = [
@@ -37,6 +39,11 @@ fail_contig_data = [
 ]
 
 
+@pytest.fixture
+def micro_bam(data_dir):
+    return data_dir / Path("micro.bam")
+
+
 @pytest.mark.parametrize("args, expected", chop_contig_data)
 def test_chop_contig(args, expected):
     assert list(chop_contig(*args)) == expected
@@ -48,3 +55,13 @@ def test_fail_chop_contig(args, expected):
         chopper = chop_contig(*args)
         next(chopper)
     assert str(excinfo.value) == str(expected)
+
+
+def test_coverage(micro_bam):
+    alignment_file = AlignmentFile(str(micro_bam))
+    assert int(coverage(alignment_file, 'chrM', (1000, 2000))) == 123
+
+
+def test_softclip(micro_bam):
+    alignment_file = AlignmentFile(str(micro_bam))
+    assert softclip_bases(alignment_file, 'chrM', (1000, 2000)) == 96

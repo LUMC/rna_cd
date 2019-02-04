@@ -68,12 +68,12 @@ def softclip_bases(reader: AlignmentFile, contig: str,
 
 
 def coverage(reader: AlignmentFile, contig: str, region: Tuple[int, int],
-             method: Callable = np.mean) -> int:
+             method: Callable = np.mean) -> float:
     """Calculate average/median/etc coverage for a region"""
     start, end = region
     covs = reader.count_coverage(contig=contig, start=start, stop=end)
 
-    return method(np.sum(covs))
+    return method(np.sum(covs, axis=0))
 
 
 def process_bam(path: Path, chunksize: int = 100,
