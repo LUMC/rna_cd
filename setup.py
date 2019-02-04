@@ -1,11 +1,10 @@
 from setuptools import setup, find_packages
 
-from rna_cd import VERSION
 
 setup(
     name="rna_cd",
     description="RNA contamination detection",
-    version=str(VERSION),
+    version="0.1.0-dev",
     author="Sander Bollen",
     author_email="a.h.b.bollen@lumc.nl",
     license="AGPLv3+",

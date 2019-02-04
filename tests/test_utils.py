@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from pathlib import Path
 from rna_cd.utils import (load_list_file, dir_to_bam_list,
                           save_sklearn_object_to_disk,
-                          load_sklearn_object_from_disk)
-from rna_cd import VERSION
+                          load_sklearn_object_from_disk, get_sklearn_version,
+                          get_rna_cd_version)
 import sklearn
 import json
 import pytest
@@ -56,8 +56,8 @@ def test_save_to_disk(temp_path):
     assert temp_path.exists()
     with temp_path.open("r") as handle:
         j = json.load(handle)
-    assert j['rna_cd_version'] == str(VERSION)
-    assert j['sklearn_version'] == sklearn.__version__
+    assert j['rna_cd_version'] == get_rna_cd_version()
+    assert j['sklearn_version'] == get_sklearn_version()
 
 
 def test_load_valid(data_dir):

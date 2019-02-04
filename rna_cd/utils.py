@@ -21,15 +21,12 @@ from pathlib import Path
 from typing import List, Any
 import joblib
 import click
-import sklearn
 
 import io
 import base64
 import json
 
-from semver import VersionInfo
-
-VERSION = VersionInfo(0, 0, 1)
+import pkg_resources
 
 
 def echo(msg: str):
@@ -50,12 +47,20 @@ def dir_to_bam_list(path: Path) -> List[Path]:
             or x.name.endswith(".cram")]
 
 
+def get_rna_cd_version():
+    return pkg_resources.get_distribution("rna_cd").version
+
+
+def get_sklearn_version():
+    return pkg_resources.get_distribution("scikit-learn").version
+
+
 def save_sklearn_object_to_disk(obj: Any, path: Path):
     """Save an object with some metadata to disk as serialized JSON"""
     b = io.BytesIO()
     d = {
-        "rna_cd_version": str(VERSION),
-        "sklearn_version": sklearn.__version__,
+        "rna_cd_version": get_rna_cd_version(),
+        "sklearn_version": get_sklearn_version(),
         "datetime_stored": str(datetime.datetime.utcnow())
     }
     joblib.dump(obj, b, compress=True)
@@ -70,9 +75,9 @@ def load_sklearn_object_from_disk(path: Path) -> Any:
     """Load a JSON-serialized object from disk"""
     with path.open("r") as handle:
         d = json.load(handle)
-    if VersionInfo.parse(
+    if pkg_resources.parse_version(
             d.get("sklearn_version", "0.0.0")
-    ) < VersionInfo(0, 20, 0):
+    ) < pkg_resources.parse_version("0.20.0"):
         raise ValueError("We do not support loading objects with sklearn "
                          "versions below 0.20.0")
     blob = base64.b64decode(d.get("obj", ""))
