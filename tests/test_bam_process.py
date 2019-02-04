@@ -21,7 +21,7 @@ from pysam import AlignmentFile
 import pytest
 
 from rna_cd.bam_process import (chop_contig, coverage, softclip_bases,
-                                process_bam)
+                                process_bam, make_array_set)
 
 
 chop_contig_data = [
@@ -38,6 +38,9 @@ fail_contig_data = [
     ((0, 100), ValueError("Size must be at least 1.")),
     ((100, 0), ValueError("Chunksize must be at least 1."))
 ]
+
+
+make_array_set_cores = list(range(1, 10))
 
 
 @pytest.fixture
@@ -78,3 +81,18 @@ def test_process_bam_contents(micro_bam):
     assert returned[0] == 1
     assert 0.007 < returned[1] < 0.008  # it's a float
     assert 0.56 < returned[2] < 0.57  # it's a float
+
+
+@pytest.mark.parametrize("cores", make_array_set_cores)
+def test_make_array_set(cores, micro_bam):
+    path_set = [micro_bam]*10
+    labels = ["pos"]*10
+    data_array, returned_labels = make_array_set(path_set, labels,
+                                                 cores=cores, chunksize=1000)
+    assert data_array.shape == (10, 51)
+
+
+def test_make_array_set_error(micro_bam):
+    with pytest.raises(ValueError) as excinfo:
+        make_array_set([micro_bam], ["pos"], cores=0)
+    assert str(excinfo.value) == "Number of cores must be at least 1."
