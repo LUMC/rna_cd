@@ -7,9 +7,8 @@ matrix:
     - python: "3.7"
 install:
   - pip install codecov
-  - pip install -r requirements.txt
   - pip install -r requirements-dev.txt
-  - python setup.py install
+  - pip install .
 script:
   - flake8 --statistics tests rna_cd
   - coverage run --source=rna_cd -m py.test -v tests
