@@ -20,7 +20,8 @@ from pathlib import Path
 from pysam import AlignmentFile
 import pytest
 
-from rna_cd.bam_process import chop_contig, coverage, softclip_bases
+from rna_cd.bam_process import (chop_contig, coverage, softclip_bases,
+                                process_bam)
 
 
 chop_contig_data = [
@@ -65,3 +66,15 @@ def test_coverage(micro_bam):
 def test_softclip(micro_bam):
     alignment_file = AlignmentFile(str(micro_bam))
     assert softclip_bases(alignment_file, 'chrM', (1000, 2000)) == 96
+
+
+def test_process_bam_len(micro_bam):
+    returned = process_bam(micro_bam, 16571)  # one chunk
+    assert len(returned) == 3
+
+
+def test_process_bam_contents(micro_bam):
+    returned = process_bam(micro_bam, 16571)  # one chunk
+    assert returned[0] == 1
+    assert 0.007 < returned[1] < 0.008  # it's a float
+    assert 0.56 < returned[2] < 0.57  # it's a float
