@@ -21,7 +21,6 @@ from rna_cd.utils import (load_list_file, dir_to_bam_list,
                           save_sklearn_object_to_disk,
                           load_sklearn_object_from_disk, get_sklearn_version,
                           get_rna_cd_version)
-import sklearn
 import json
 import pytest
 

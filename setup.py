@@ -15,7 +15,6 @@ setup(
         "scikit-learn",
         "pysam",
         "matplotlib",
-        "semver",
         "joblib"
     ],
     entry_points={
