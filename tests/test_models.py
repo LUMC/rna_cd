@@ -16,17 +16,10 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-from typing import List, Tuple
-from pathlib import Path
 import pytest
 import magic
 
 from rna_cd.models import train_svm_model
-
-
-@pytest.fixture
-def dataset(micro_bam, micro_bam2) -> Tuple[List[Path], List[Path]]:
-    return [micro_bam]*10, [micro_bam2]*10
 
 
 def test_train_model(dataset):

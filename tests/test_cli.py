@@ -20,6 +20,7 @@ from click.testing import CliRunner
 from click import BadParameter
 from collections import namedtuple
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 import pytest
 
@@ -112,6 +113,27 @@ classify_cli_errors_data = [
 ]
 
 
+@pytest.fixture
+def make_dataset_lists(dataset):
+    positives, negatives = dataset
+    pos_list_f = Path(NamedTemporaryFile(delete=False).name)
+    neg_list_f = Path(NamedTemporaryFile(delete=False).name)
+
+    with pos_list_f.open("w") as pos_handle:
+        for pos in positives:
+            pos_handle.write(str(pos)+"\n")
+
+    with neg_list_f.open("w") as neg_handle:
+        for neg in negatives:
+            neg_handle.write(str(neg)+"\n")
+
+    yield pos_list_f, neg_list_f
+
+    # teardown
+    pos_list_f.unlink()
+    neg_list_f.unlink()
+
+
 @pytest.mark.parametrize("args, expected", dir_callback_data)
 def test_dir_callback(args, expected):
     if isinstance(expected, Exception):
@@ -153,3 +175,13 @@ def test_classify_cli_errors(args, expected):
     assert result.exit_code != 0
     assert type(result.exception) == type(expected)
     assert result.exception.args[0] == expected.args[0]
+
+
+def test_train_cli(make_dataset_lists, temp_path):
+    pos_list, neg_list = make_dataset_lists
+    runner = CliRunner()
+    args = ["-pl", str(pos_list), "-nl", str(neg_list), "-o", str(temp_path),
+            "--chunksize", 1000]
+    result = runner.invoke(train_cli, args)
+    assert result.exit_code == 0
+    assert "Finished training." in result.output
