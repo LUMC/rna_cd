@@ -19,20 +19,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import pytest
 import magic
 
-from rna_cd.models import train_svm_model
+from unittest import mock
+import numpy as np
+
+import rna_cd.models
 
 
-def test_train_model(dataset):
+@pytest.fixture
+def labels():
+    # fake labels for mock array set
+    return np.array(["pos"]*10 + ["neg"]*10)
+
+
+def test_train_model(dataset, labels):
     positives, negatives = dataset
-    result = train_svm_model(positive_bams=positives, negative_bams=negatives,
-                             chunksize=1000)
+    with mock.patch("rna_cd.models.make_array_set") as mocked_array:
+        # create array with shape (20, 500)
+        mocked_array.return_value = (np.random.rand(20, 500), labels)
+        result = rna_cd.models.train_svm_model(positive_bams=positives,
+                                               negative_bams=negatives,
+                                               chunksize=1000)
+    mocked_array.assert_called_once()
     steps = list(result.best_estimator_.named_steps.keys())
     assert sorted(steps) == sorted(["scale", "reduce_dim", "svm"])
 
 
 def test_train_model_error():
     with pytest.raises(ValueError) as excinfo:
-        train_svm_model([], [])
+        rna_cd.models.train_svm_model([], [])
     assert str(excinfo.value) == ("The list of positive BAM files may not be "
                                   "empty.")
 
@@ -40,7 +54,7 @@ def test_train_model_error():
 def test_train_model_error_negative(dataset):
     positives, _ = dataset
     with pytest.raises(ValueError) as excinfo:
-        train_svm_model(positives, [])
+        rna_cd.models.train_svm_model(positives, [])
     assert str(excinfo.value) == ("The list of negative BAM files may not be "
                                   "empty.")
 
@@ -48,13 +62,18 @@ def test_train_model_error_negative(dataset):
 def test_train_model_error_same_files(dataset):
     positives, _ = dataset
     with pytest.raises(ValueError) as excinfo:
-        train_svm_model(positives, positives)
+        rna_cd.models.train_svm_model(positives, positives)
     assert str(excinfo.value) == ("Positive and negative BAM files may not be "
                                   "identical.")
 
 
-def test_train_model_image(dataset, temp_path):
+def test_train_model_image(dataset, temp_path, labels):
     positives, negatives = dataset
-    train_svm_model(positives, negatives, chunksize=1000, plot_out=temp_path)
+    with mock.patch("rna_cd.models.make_array_set") as mocked_array:
+        # create array with shape (20, 500)
+        mocked_array.return_value = (np.random.rand(20, 500), labels)
+        rna_cd.models.train_svm_model(positives, negatives, chunksize=1000,
+                                      plot_out=temp_path)
+    mocked_array.assert_called_once()
     mimetype = magic.from_file(str(temp_path), mime=True)
     assert mimetype == "image/png"
