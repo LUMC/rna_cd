@@ -43,11 +43,6 @@ fail_contig_data = [
 make_array_set_cores = list(range(1, 10))
 
 
-@pytest.fixture
-def micro_bam(data_dir):
-    return data_dir / Path("micro.bam")
-
-
 @pytest.mark.parametrize("args, expected", chop_contig_data)
 def test_chop_contig(args, expected):
     assert list(chop_contig(*args)) == expected

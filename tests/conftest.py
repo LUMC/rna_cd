@@ -26,6 +26,16 @@ def data_dir() -> Path:
     return Path(__file__).parent / Path("data")
 
 
+@pytest.fixture
+def micro_bam(data_dir) -> Path:
+    return data_dir / Path("micro.bam")
+
+
+@pytest.fixture
+def micro_bam2(data_dir) -> Path:
+    return data_dir / Path("micro2.bam")
+
+
 @pytest.fixture()
 def temp_path() -> Path:
     tempf = NamedTemporaryFile(delete=False)
