@@ -194,6 +194,6 @@ def test_train_cli(make_dataset_lists, temp_path, labels):
         # create array with shape (20, 500)
         mocked_array.return_value = (np.random.rand(20, 500), labels)
         result = runner.invoke(train_cli, args)
-    mocked_array.assert_called_once()
+    assert mocked_array.call_count == 1
     assert result.exit_code == 0
     assert "Finished training." in result.output

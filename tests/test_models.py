@@ -39,7 +39,7 @@ def test_train_model(dataset, labels):
         result = rna_cd.models.train_svm_model(positive_bams=positives,
                                                negative_bams=negatives,
                                                chunksize=1000)
-    mocked_array.assert_called_once()
+    assert mocked_array.call_count == 1
     steps = list(result.best_estimator_.named_steps.keys())
     assert sorted(steps) == sorted(["scale", "reduce_dim", "svm"])
 
@@ -74,6 +74,6 @@ def test_train_model_image(dataset, temp_path, labels):
         mocked_array.return_value = (np.random.rand(20, 500), labels)
         rna_cd.models.train_svm_model(positives, negatives, chunksize=1000,
                                       plot_out=temp_path)
-    mocked_array.assert_called_once()
+    assert mocked_array.call_count == 1
     mimetype = magic.from_file(str(temp_path), mime=True)
     assert mimetype == "image/png"
