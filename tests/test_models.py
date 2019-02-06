@@ -63,8 +63,8 @@ def test_train_model_error_same_files(dataset):
     positives, _ = dataset
     with pytest.raises(ValueError) as excinfo:
         rna_cd.models.train_svm_model(positives, positives)
-    assert str(excinfo.value) == ("Positive and negative BAM files may not be "
-                                  "identical.")
+    assert str(excinfo.value) == ("An overlap exists between the lists of "
+                                  "positive and negative bam files.")
 
 
 def test_train_model_image(dataset, temp_path, labels):

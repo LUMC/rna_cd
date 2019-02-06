@@ -73,9 +73,10 @@ def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
     if len(negative_bams) < 1:
         raise ValueError("The list of negative BAM files may not be empty.")
 
-    if set(positive_bams) == set(negative_bams):
-        raise ValueError("Positive and negative BAM files may not be "
-                         "identical.")
+    # sets must be distjoint (i.e. no common elements)
+    if not set(positive_bams).isdisjoint(set(negative_bams)):
+        raise ValueError("An overlap exists between the lists of positive "
+                         "and negative bam files.")
     labels = ["pos"]*len(positive_bams) + ["neg"]*len(negative_bams)
     arr_X, arr_Y = make_array_set(positive_bams+negative_bams, labels,
                                   chunksize, contig, cores)

@@ -39,7 +39,7 @@ def micro_bam2(data_dir) -> Path:
 
 @pytest.fixture
 def dataset(micro_bam, micro_bam2) -> Tuple[List[Path], List[Path]]:
-    return [micro_bam]*10, [micro_bam2]*10
+    return [micro_bam], [micro_bam2]
 
 
 @pytest.fixture()
