@@ -16,6 +16,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+from typing import List, Tuple
 import pytest
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -24,6 +25,21 @@ from tempfile import NamedTemporaryFile
 @pytest.fixture(scope="session")
 def data_dir() -> Path:
     return Path(__file__).parent / Path("data")
+
+
+@pytest.fixture
+def micro_bam(data_dir) -> Path:
+    return data_dir / Path("micro.bam")
+
+
+@pytest.fixture
+def micro_bam2(data_dir) -> Path:
+    return data_dir / Path("micro2.bam")
+
+
+@pytest.fixture
+def dataset(micro_bam, micro_bam2) -> Tuple[List[Path], List[Path]]:
+    return [micro_bam], [micro_bam2]
 
 
 @pytest.fixture()

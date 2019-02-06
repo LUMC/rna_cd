@@ -68,12 +68,12 @@ def softclip_bases(reader: AlignmentFile, contig: str,
 
 
 def coverage(reader: AlignmentFile, contig: str, region: Tuple[int, int],
-             method: Callable = np.mean) -> int:
+             method: Callable = np.mean) -> float:
     """Calculate average/median/etc coverage for a region"""
     start, end = region
     covs = reader.count_coverage(contig=contig, start=start, stop=end)
 
-    return method(np.sum(covs))
+    return method(np.sum(covs, axis=0))
 
 
 def process_bam(path: Path, chunksize: int = 100,
@@ -124,6 +124,8 @@ def make_array_set(bam_files: List[Path], labels: List[Any],
     :return: tuple of X and Y numpy arrays. X has shape (n_files, n_features)
     Y has shape (n_files,).
     """
+    if cores < 1:
+        raise ValueError("Number of cores must be at least 1.")
     pool = Pool(cores)
     proc_func = partial(process_bam, chunksize=chunksize, contig=contig)
     # this returns a list of ndarrays.

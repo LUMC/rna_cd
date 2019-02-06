@@ -20,8 +20,11 @@ from click.testing import CliRunner
 from click import BadParameter
 from collections import namedtuple
 from pathlib import Path
+from unittest import mock
+from tempfile import NamedTemporaryFile
 
 import pytest
+import numpy as np
 
 from rna_cd.cli import (directory_callback, list_callback, path_callback,
                         train_cli, classify_cli)
@@ -112,6 +115,33 @@ classify_cli_errors_data = [
 ]
 
 
+@pytest.fixture
+def make_dataset_lists(dataset):
+    positives, negatives = dataset
+    pos_list_f = Path(NamedTemporaryFile(delete=False).name)
+    neg_list_f = Path(NamedTemporaryFile(delete=False).name)
+
+    with pos_list_f.open("w") as pos_handle:
+        for pos in positives:
+            pos_handle.write(str(pos)+"\n")
+
+    with neg_list_f.open("w") as neg_handle:
+        for neg in negatives:
+            neg_handle.write(str(neg)+"\n")
+
+    yield pos_list_f, neg_list_f
+
+    # teardown
+    pos_list_f.unlink()
+    neg_list_f.unlink()
+
+
+@pytest.fixture
+def labels():
+    # fake labels for mock array set
+    return np.array(["pos"]*10 + ["neg"]*10)
+
+
 @pytest.mark.parametrize("args, expected", dir_callback_data)
 def test_dir_callback(args, expected):
     if isinstance(expected, Exception):
@@ -153,3 +183,17 @@ def test_classify_cli_errors(args, expected):
     assert result.exit_code != 0
     assert type(result.exception) == type(expected)
     assert result.exception.args[0] == expected.args[0]
+
+
+def test_train_cli(make_dataset_lists, temp_path, labels):
+    pos_list, neg_list = make_dataset_lists
+    runner = CliRunner()
+    args = ["-pl", str(pos_list), "-nl", str(neg_list), "-o", str(temp_path),
+            "--chunksize", 1000]
+    with mock.patch("rna_cd.models.make_array_set") as mocked_array:
+        # create array with shape (20, 500)
+        mocked_array.return_value = (np.random.rand(20, 500), labels)
+        result = runner.invoke(train_cli, args)
+    assert mocked_array.call_count == 1
+    assert result.exit_code == 0
+    assert "Finished training." in result.output
