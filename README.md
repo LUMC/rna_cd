@@ -1,19 +1,24 @@
 [![Build Status](https://travis-ci.org/LUMC/rna_cd.svg?branch=master)](https://travis-ci.org/LUMC/rna_cd) [![codecov](https://codecov.io/gh/LUMC/rna_cd/branch/master/graph/badge.svg)](https://codecov.io/gh/LUMC/rna_cd)
 # RNA Contamination Detection
 
-Detect contaminations of mouse or human RNA in human DNA Illumina reads. 
+Human DNA-seq experiments may be contaminated with RNA. This usually
+negatively influences downstream analysis. For example, it can introduce
+false positive variants around splice sites, suppress alternative alleles
+due to allele-specific expression, and alter coverage patterns which may then
+influence CNV calling. Moreover, it is typically hard to detect.
 
-Mouse and human RNA contamination in a DNA sample gives a spike of reads with 
-large amounts of softclips in chrM. This is likely due to an expressed 
-mitochondrial gene. We can use this behaviour to detect the presence of mouse 
-RNA in our data.
+Modern Illumina sequencers unfortunately are more prone to such contamination,
+as the very large capacity of novaseq sequencers typically means multiple
+projects are sequenced on the same flowcells. Combined with the increased risk
+of index hopping in novaseq sequencers, this alltogether means that
+cross-contamination of samples is more likely - including contamination of
+RNA into DNA-seq experiments.
 
-The mitochondrial chromosome is usually covered completely in both exome and
-whole-genome sequencing experiments, and can thus be used for both approaches.
-
-This tool has to be trained using a set samples known to be contaminated. 
-We will possibly provide a pre-trained model in the future.  
-
+rna_cd is a python package and command line tool designed to detect such
+RNA contamination of DNA-seq experiments. It uses the altered coverage
+and softclip patterns in contaminated samples to train a Support Vector
+Machine that can classify BAM files into contaminated ("positive") and
+uncontaminated ("negative") groups.
 ## Requirements
 
 * Python 3.5+
@@ -30,35 +35,7 @@ We will possibly provide a pre-trained model in the future.
 
 ### Training
 
-```
-Usage: rna_cd-train [OPTIONS]
 
-Options:
-  --chunksize INTEGER             Chunksize in bases. Default = 100
-  -c, --contig TEXT               Name of mitochrondrial contig in your BAM
-                                  files. Default = chrM
-  -pd, --positives-dir DIRECTORY  Path to directory containing positive BAM
-                                  files. Mutually exclusive with --positives-
-                                  list
-  -nd, --negatives-dir DIRECTORY  Path to directory containing negative BAM
-                                  files. Mutually exlusive with --negatives-
-                                  list
-  -pl, --positives-list FILE      Path to file containing a list of paths to
-                                  positive BAM files. Mutually exclusive with
-                                  --positives-dir
-  -nl, --negatives-list FILE      Path to file containing a list of paths to
-                                  negative BAM files. Mutuallly exclusive with
-                                  --negatives-dir
-  --cross-validations INTEGER     Number of folds for cross validation run.
-                                  Default = 3
-  --verbosity INTEGER             Verbosity value for cross validation step.
-                                  Default = 1
-  -j, --cores INTEGER             Number of cores to use for processing of BAM
-                                  files and cross validations. Default = 1
-  --plot-out PATH                 Optional path to PCA plot.
-  -o, --model-out PATH            Path where model will be stored.  [required]
-  --help                          Show this message and exit.
-```
 
 For example:
 
