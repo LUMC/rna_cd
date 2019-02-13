@@ -18,4 +18,4 @@ rna_cd is a python package and command line tool designed to detect such
 RNA contamination of DNA-seq experiments. It uses the altered coverage
 and softclip patterns in contaminated samples to train a Support Vector
 Machine that can classify BAM files into contaminated ("positive") and
-uncontamined ("negative") groups.
+uncontaminated ("negative") groups.
