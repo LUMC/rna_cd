@@ -5,7 +5,7 @@ setup(
     name="rna_cd",
     description="RNA contamination detection",
     version="0.1.0-dev",
-    author="Sander Bollen",
+    author="Leiden University Medical Center",
     author_email="a.h.b.bollen@lumc.nl",
     license="AGPLv3+",
     packages=find_packages(),
