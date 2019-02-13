@@ -19,7 +19,7 @@ and softclip patterns in contaminated samples to train a Support Vector
 Machine that can classify BAM files into contaminated ("positive") and
 uncontaminated ("negative") groups.
 
-
+*rna_cd* stands for *RNA contamination detector*.
 
 User documentation
 ==================
