@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/LUMC/rna_cd.svg?branch=master)](https://travis-ci.org/LUMC/rna_cd) [![codecov](https://codecov.io/gh/LUMC/rna_cd/branch/master/graph/badge.svg)](https://codecov.io/gh/LUMC/rna_cd)
+[![Build Status](https://travis-ci.org/LUMC/rna_cd.svg?branch=master)](https://travis-ci.org/LUMC/rna_cd) [![codecov](https://codecov.io/gh/LUMC/rna_cd/branch/master/graph/badge.svg)](https://codecov.io/gh/LUMC/rna_cd) [![Documentation Status](https://readthedocs.org/projects/rna-cd/badge/?version=latest)](https://rna-cd.readthedocs.io/en/latest/?badge=latest)
 # RNA Contamination Detection
 
 rna_cd is a python package and command line tool designed to detect 
