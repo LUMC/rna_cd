@@ -3,3 +3,4 @@ flake8>=3.6.0
 pytest-cov>=2.6.1
 python-magic>=0.4.15
 sphinx>=1.8.4
+sphinx-click>=2.0.1

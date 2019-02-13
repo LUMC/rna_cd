@@ -68,32 +68,6 @@ List method, chrM, chunksize = 100, cores = 3, with plot
 Usage
 -----
 
-::
-
-    Usage: rna_cd-train [OPTIONS]
-
-    Options:
-      --chunksize INTEGER             Chunksize in bases. Default = 100
-      -c, --contig TEXT               Name of mitochrondrial contig in your BAM
-                                      files. Default = chrM
-      -pd, --positives-dir DIRECTORY  Path to directory containing positive BAM
-                                      files. Mutually exclusive with --positives-
-                                      list
-      -nd, --negatives-dir DIRECTORY  Path to directory containing negative BAM
-                                      files. Mutually exlusive with --negatives-
-                                      list
-      -pl, --positives-list FILE      Path to file containing a list of paths to
-                                      positive BAM files. Mutually exclusive with
-                                      --positives-dir
-      -nl, --negatives-list FILE      Path to file containing a list of paths to
-                                      negative BAM files. Mutuallly exclusive with
-                                      --negatives-dir
-      --cross-validations INTEGER     Number of folds for cross validation run.
-                                      Default = 3
-      --verbosity INTEGER             Verbosity value for cross validation step.
-                                      Default = 1
-      -j, --cores INTEGER             Number of cores to use for processing of BAM
-                                      files and cross validations. Default = 1
-      --plot-out PATH                 Optional path to PCA plot.
-      -o, --model-out PATH            Path where model will be stored.  [required]
-      --help                          Show this message and exit.
+.. click:: rna_cd.cli:train_cli
+    :prog: rna_cd-train
+    :show-nested:

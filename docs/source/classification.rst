@@ -66,22 +66,6 @@ List method, chrM, chunksize = 100, cores = 3
 Usage
 -----
 
-::
-
-    Usage: rna_cd-classify [OPTIONS]
-
-    Options:
-      --chunksize INTEGER        Chunksize in bases. Default = 100
-      -c, --contig TEXT          Name of mitochrondrial contig in your BAM files.
-                                 Default = chrM
-      -j, --cores INTEGER        Number of cores to use for processing of BAM
-                                 files. Default = 1
-      -d, --directory DIRECTORY  Path to directory with BAM files to be tested.
-                                 Mutually exclusive with --list-items
-      -l, --list-items FILE      Path to file containing list of paths to BAM
-                                 files to be tested. Mutually exclusive with
-                                 --directory
-      -m, --model FILE           Path to model.
-      -o, --output PATH          Path to output file containing classifications.
-                                 [required]
-      --help                     Show this message and exit.
+.. click:: rna_cd.cli:classify_cli
+    :prog: rna_cd-classify
+    :show-nested:
