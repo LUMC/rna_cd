@@ -9,6 +9,7 @@ rna_cd
     installation
     training
     classification
+    api
     changelog
     LICENSE
 

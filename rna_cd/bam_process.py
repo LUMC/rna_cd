@@ -1,21 +1,20 @@
+# Copyright (C) 2018-2019  Leiden University Medical Center
+#
+# This file is part of rna_cd
+#
+# rna_cd is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Copyright (C) 2018-2019  Leiden University Medical Center
-
-This file is part of rna_cd
-
-rna_cd is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published
-by the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 bam_process.py
 ~~~~~~~~~~~~~~
 
@@ -34,7 +33,7 @@ from .utils import echo
 
 def chop_contig(size: int, chunksize: int) -> Iterator[Tuple[int, int]]:
     """
-    For a contig of given size, generate regions maximally chunksize long
+    For a contig of given size, generate regions maximally chunksize long.
     We use _0_ based indexing
     """
 
@@ -121,8 +120,8 @@ def make_array_set(bam_files: List[Path], labels: List[Any],
     :param bam_files: List of paths to bam files
     :param labels: list of labels.
     :param cores: number of cores to use for processing
-    :return: tuple of X and Y numpy arrays. X has shape (n_files, n_features)
-    Y has shape (n_files,).
+    :return: tuple of X and Y numpy arrays. X has shape (n_files, n_features).
+             Y has shape (n_files,).
     """
     if cores < 1:
         raise ValueError("Number of cores must be at least 1.")

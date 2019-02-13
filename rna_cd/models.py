@@ -1,21 +1,19 @@
-"""
-Copyright (C) 2018-2019  Leiden University Medical Center
-
-This file is part of rna_cd
-
-rna_cd is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published
-by the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
+# Copyright (C) 2018-2019  Leiden University Medical Center
+#
+# This file is part of rna_cd
+#
+# rna_cd is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from pathlib import Path
 from typing import List, Optional, Tuple
 
@@ -62,9 +60,9 @@ def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
     :param contig: The name of the contig.
     :param cross_validations: The amount of cross validations
     :param verbosity: Verbosity parameter of sklearn. Increase to see more
-    messages.
+           messages.
     :param cores: Amount of cores to use for both metric collection and
-    training.
+           training.
     :param plot_out: Optional path for PCA plot.
     :returns: GridSearchCV object containing tuned pipeline.
     """
@@ -150,8 +148,8 @@ def predict_labels_and_prob(model, bam_files: List[Path],
     """
     Predict labels and probabilities for a list of bam files.
 
-    Returns tuple of List[predicted classes],
-    List[probability for the most likely class]
+    :returns: tuple of List[predicted classes],
+              List[probability for the most likely class]
     """
     bam_arr, _ = make_array_set(bam_files, [], chunksize, contig, cores)
     prob = model.predict_proba(bam_arr)
