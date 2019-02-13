@@ -8,7 +8,7 @@ category, you can organize your BAM files in two distinct ways:
 1. Place all BAM files of the category in the same directory.
 2. Make a flat text file, where each line points to a path of a BAM file.
 
-Your BAM files must be indexed.
+.. note:: Your BAM files must be indexed.
 
 Once you have this in place, you need to choose the contig in your BAM file
 that you want to collect metrics for, and the chunksize. rna_cd will split

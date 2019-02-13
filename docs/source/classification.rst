@@ -10,10 +10,11 @@ ways:
 This time, there are no separate categories, as all BAM files are
 a-priori unknown.
 
-Your BAM files must be indexed.
+.. note:: Your BAM files must be indexed.
 
-As mentioned before, you **must** use the **exact** same contig and
-chunksize settings in this step as were used during the training step.
+.. warning:: As mentioned before, you **must** use the **exact** same contig
+             and chunksize settings in this step as were used during the
+             training step.
 
 As with the training step, metric collection can run in multicore mode
 during classifcation as well.

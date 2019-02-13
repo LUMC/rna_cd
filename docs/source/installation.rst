@@ -28,4 +28,5 @@ We only support the following python versions:
 * python 3.6
 * python 3.7
 
-Python 2 is **not** supported.
+ .. note:: Python 2 is **not** supported in any way. Even attempting to
+           install the package on python 2 will result in failures.
