@@ -17,16 +17,18 @@
 # sys.path.insert(0, os.path.abspath('.'))
 
 
-# -- Project information -----------------------------------------------------
+import pkg_resources
 
-project = 'rna_cd'
+# -- Project information -----------------------------------------------------
+package_metadata = pkg_resources.get_distribution("rna_cd")
+project = package_metadata.project_name
 copyright = '2019, Leiden University Medical Center'
 author = 'Leiden University Medical Center'
 
 # The short X.Y version
-version = '0.1'
+version = package_metadata.parsed_version.base_version
 # The full version, including alpha/beta/rc tags
-release = '0.1.0-dev'
+release = package_metadata.version
 
 
 # -- General configuration ---------------------------------------------------
