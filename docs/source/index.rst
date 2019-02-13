@@ -1,9 +1,17 @@
 rna_cd
 ==================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+..  toctree::
+    :maxdepth: 2
+    :caption: Contents:
+
+    introduction
+    installation
+    training
+    classification
+    changelog
+    LICENSE
+
 
 
 
