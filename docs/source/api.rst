@@ -3,8 +3,12 @@ API documentation
 
 bam_process
 --------------
-.. automodule:: rna_cd.bam_process
-    :members:
+
+.. autofunction:: rna_cd.bam_process.chop_contig
+.. autofunction:: rna_cd.bam_process.softclip_bases
+.. autofunction:: rna_cd.bam_process.coverage
+.. autofunction:: rna_cd.bam_process.process_bam
+.. autofunction:: rna_cd.bam_process.make_array_set
 
 cli
 ---
