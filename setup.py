@@ -1,9 +1,12 @@
 from setuptools import setup, find_packages
 
+with open("README.rst") as handle:
+    LONG_DESCRIPTION = handle.read()
 
 setup(
     name="rna_cd",
     description="RNA contamination detector",
+    long_description=LONG_DESCRIPTION,
     version="0.1.0",
     author="Leiden University Medical Center",
     author_email="a.h.b.bollen@lumc.nl",
