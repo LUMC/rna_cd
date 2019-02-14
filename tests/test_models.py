@@ -25,6 +25,9 @@ import numpy as np
 import rna_cd.models
 
 
+predict_error_data = [-0.5, 0, 1.0, 50]
+
+
 @pytest.fixture
 def labels():
     # fake labels for mock array set
@@ -77,3 +80,31 @@ def test_train_model_image(dataset, temp_path, labels):
     assert mocked_array.call_count == 1
     mimetype = magic.from_file(str(temp_path), mime=True)
     assert mimetype == "image/png"
+
+
+@pytest.mark.parametrize("value", predict_error_data)
+def test_predict_classes_errors(value):
+    with pytest.raises(ValueError) as excinfo:
+        rna_cd.models.predict_labels_and_prob(None, None, None,
+                                              None, None, value)
+    assert str(excinfo.value) == ("unknown_threshold must be between "
+                                  "0.5 and 1.0")
+
+
+def test_classify_unknown(dataset, labels):
+    positives, negatives = dataset
+    with mock.patch("rna_cd.models.make_array_set") as mocked_array:
+        mocked_array.return_value = (np.random.rand(20, 500), labels)
+        trained = rna_cd.models.train_svm_model(positives, negatives,
+                                                chunksize=1000)
+
+    # we have trained using random data, there should not be any
+    # patterns. To make sure we really classify everything as unknown
+    # set the unknown threshold to 0.9999
+    with mock.patch("rna_cd.models.make_array_set") as mocked_array2:
+        mocked_array2.return_value = (np.random.rand(1, 500), [])
+        classes, probabilities = rna_cd.models.predict_labels_and_prob(
+            trained, positives, chunksize=1000, unknown_threshold=0.9999
+        )
+
+    assert all(x == 'unknown' for x in classes)

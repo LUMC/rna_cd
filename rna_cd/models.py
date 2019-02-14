@@ -144,20 +144,30 @@ def plot_pca(searcher: GridSearchCV, arr_X: np.ndarray, arr_Y: np.ndarray,
 
 def predict_labels_and_prob(model, bam_files: List[Path],
                             chunksize: int = 100, contig: str = "chrM",
-                            cores: int = 1) -> Tuple[List[str], List[float]]:
+                            cores: int = 1,
+                            unknown_threshold: float = 0.75) -> Tuple[List[str], List[float]]:  # noqa
     """
     Predict labels and probabilities for a list of bam files.
+
+    :param unknown_threshold: The probability threshold below which samples
+           are considered to be 'unknown'. Must be between 0.5 and 1.0
 
     :returns: tuple of List[predicted classes],
               List[probability for the most likely class]
     """
+    if not 0.5 < unknown_threshold < 1.0:
+        raise ValueError("unknown_threshold must be between 0.5 and 1.0")
+
     bam_arr, _ = make_array_set(bam_files, [], chunksize, contig, cores)
     prob = model.predict_proba(bam_arr)
     classes = []
     most_likely_prob = []
     for sample in prob:
         likely = max(sample)
-        most_likely_prob.append(likely)
-        predicted_class = model.classes_[np.where(sample == likely)][0]
+        if likely < unknown_threshold:
+            predicted_class = 'unknown'
+        else:
+            predicted_class = model.classes_[np.where(sample == likely)][0]
         classes.append(predicted_class)
+        most_likely_prob.append(likely)
     return classes, most_likely_prob

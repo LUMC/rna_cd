@@ -7,3 +7,4 @@ Changelog
 * Make tool
 * Add tests
 * Add sphinx documentation
+* Add optional 'unknown' category.
