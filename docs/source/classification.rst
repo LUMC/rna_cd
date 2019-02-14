@@ -24,12 +24,18 @@ use the model you generated during the training step to classify your
 BAM files into contaminated ("positive") and uncontamined ("negative")
 groups.
 
+Additionally, there is an optional third category with label "unknown". This
+represents samples for which we are unsure to which category they belong
+to. By default, samples are categorized as "unknown" when the class
+probability of the most likely category is below 0.75. You can override this
+parameter, but it must be higher than 0.5 and lower than 1.0.
+
 The classifications will be stored to disk in a three-column tab-delimited
 text file, with the following columns:
 
 1. Name of the BAM file that was classified.
 2. Assigned category ("pos" or "neg" for positive and negative classifications,
-   respectively).
+   respectively, and "unknown" for the unknown category).
 3. The probability of the assigned category.
 
 E.g. an example output file could look like
@@ -40,6 +46,7 @@ E.g. an example output file could look like
     a.bam   neg 0.95
     b.bam   neg 0.88
     c.bam   pos 0.75
+    d.bam   unknown 0.55
 
 
 Examples
