@@ -32,7 +32,7 @@ Installation
 
 ::
 
-    $ pip install rna_cd
+    $ pip install rna-cd
 
 License
 =======
