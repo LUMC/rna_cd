@@ -65,6 +65,16 @@ def path_callback(ctx, param, value):
     return Path(value)
 
 
+def unknown_threshold_callback(ctx, param, value):
+    """
+    Click callback function for threshold that has to be between 0.5 and 1.0
+    """
+    if not 0.5 < value < 1.0:
+        raise click.BadParameter("--unknown-threshold must be between 0.5 "
+                                 "and 1.0")
+    return value
+
+
 @click.command()
 @click.option("--chunksize", type=click.INT, default=100,
               help="Chunksize in bases. Default = 100")
@@ -163,10 +173,14 @@ def train_cli(chunksize: int, contig: str, model_out: Path,
 @click.option("-o", "--output", type=click.Path(writable=True),
               required=True, callback=path_callback,
               help="Path to output file containing classifications.")
+@click.option("-t", "--unknown-threshold", type=click.FLOAT, default=0.75,
+              help="Threshold of most likely probability below which samples"
+                   "wll be assinged as 'unknown'. Default = 0.75",
+              callback=unknown_threshold_callback)
 def classify_cli(chunksize: int, contig: str, cores: int,
                  directory: Optional[List[Path]],
                  list_items: Optional[List[Path]], model: Path,
-                 output: Path):
+                 output: Path, unknown_threshold: float):
 
     if directory is None and list_items is None:
         raise ValueError("Must set either --directory or --list-items")
@@ -178,7 +192,7 @@ def classify_cli(chunksize: int, contig: str, cores: int,
     echo("Running predictions.")
     predicted_classes, probabilities = predict_labels_and_prob(
         sklearn_model, bam_files, chunksize=chunksize,
-        contig=contig, cores=cores)
+        contig=contig, cores=cores, unknown_threshold=unknown_threshold)
     echo("Writing predictions to disk.")
     with output.open("w") as ohandle:
         header = 'filename\tpredicted_class\tclass_probability\n'

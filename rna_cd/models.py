@@ -145,7 +145,7 @@ def plot_pca(searcher: GridSearchCV, arr_X: np.ndarray, arr_Y: np.ndarray,
 def predict_labels_and_prob(model, bam_files: List[Path],
                             chunksize: int = 100, contig: str = "chrM",
                             cores: int = 1,
-                            unknown_threshold: float = 0.75) -> Tuple[List[str], List[float]]:
+                            unknown_threshold: float = 0.75) -> Tuple[List[str], List[float]]:  # noqa
     """
     Predict labels and probabilities for a list of bam files.
 
