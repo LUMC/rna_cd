@@ -1,17 +1,12 @@
 Installation
 ============
 
-``rna_cd`` is unfortunately not yet on PyPI. To install ``rna_cd``, acquire
-the source code by cloning the git repository::
+``rna_cd`` is now available on PyPI! Simply install the package in your
+favorite python environment with:
 
-    $ git clone https://github.com/LUMC/rna_cd.git
+::
 
-
-Move to the rna_cd directory, and then install the package by running the
-following in your python environment of choice::
-
-    $ pip install '.'
-
+    $ pip install rna-cd
 
 This will install both the ``rna_cd`` python package, and install two
 command line tools:
