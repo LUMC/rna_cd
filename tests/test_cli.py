@@ -114,6 +114,12 @@ classify_cli_errors_data = [
      ValueError("Must set either --directory or --list-items"))
 ]
 
+classify_tool_errors_data = [
+    (["-m", str(_listf), "-o", "something", "-d", str(Path(__file__).parent),
+      "-t", "0"], 'Error: Invalid value for "-t" / "--unknown-threshold": '
+                  'value must be between 0.5 and 1.0')
+]
+
 
 @pytest.fixture
 def make_dataset_lists(dataset):
@@ -183,6 +189,14 @@ def test_classify_cli_errors(args, expected):
     assert result.exit_code != 0
     assert type(result.exception) == type(expected)
     assert result.exception.args[0] == expected.args[0]
+
+
+@pytest.mark.parametrize("args, expected", classify_tool_errors_data)
+def test_classify_tool_errors(args, expected):
+    runner = CliRunner(mix_stderr=False)
+    result = runner.invoke(classify_cli, args)
+    assert result.exit_code != 0
+    assert expected in result.stderr
 
 
 def test_train_cli(make_dataset_lists, temp_path, labels):

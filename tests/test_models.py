@@ -89,3 +89,22 @@ def test_predict_classes_errors(value):
                                               None, None, value)
     assert str(excinfo.value) == ("unknown_threshold must be between "
                                   "0.5 and 1.0")
+
+
+def test_classify_unknown(dataset, labels):
+    positives, negatives = dataset
+    with mock.patch("rna_cd.models.make_array_set") as mocked_array:
+        mocked_array.return_value = (np.random.rand(20, 500), labels)
+        trained = rna_cd.models.train_svm_model(positives, negatives,
+                                                chunksize=1000)
+
+    # we have trained using random data, there should not be any
+    # patterns. To make sure we really classify everything as unknown
+    # set the unknown threshold to 0.9999
+    with mock.patch("rna_cd.models.make_array_set") as mocked_array2:
+        mocked_array2.return_value = (np.random.rand(1, 500), [])
+        classes, probabilities = rna_cd.models.predict_labels_and_prob(
+            trained, positives, chunksize=1000, unknown_threshold=0.9999
+        )
+
+    assert all(x == 'unknown' for x in classes)

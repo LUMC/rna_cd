@@ -70,7 +70,7 @@ def unknown_threshold_callback(ctx, param, value):
     Click callback function for threshold that has to be between 0.5 and 1.0
     """
     if not 0.5 < value < 1.0:
-        raise click.BadParameter("--unknown-threshold must be between 0.5 "
+        raise click.BadParameter("value must be between 0.5 "
                                  "and 1.0")
     return value
 
