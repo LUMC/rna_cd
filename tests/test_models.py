@@ -25,6 +25,9 @@ import numpy as np
 import rna_cd.models
 
 
+predict_error_data = [-0.5, 0, 1.0, 50]
+
+
 @pytest.fixture
 def labels():
     # fake labels for mock array set
@@ -77,3 +80,12 @@ def test_train_model_image(dataset, temp_path, labels):
     assert mocked_array.call_count == 1
     mimetype = magic.from_file(str(temp_path), mime=True)
     assert mimetype == "image/png"
+
+
+@pytest.mark.parametrize("value", predict_error_data)
+def test_predict_classes_errors(value):
+    with pytest.raises(ValueError) as excinfo:
+        rna_cd.models.predict_labels_and_prob(None, None, None,
+                                              None, None, value)
+    assert str(excinfo.value) == ("unknown_threshold must be between "
+                                  "0.5 and 1.0")
