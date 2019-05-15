@@ -1,3 +1,5 @@
+.. image:: https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)
+    :target: http://bioconda.github.io/recipes/rna-cd/README.html
 .. image:: https://travis-ci.org/LUMC/rna_cd.svg?branch=master
     :target: https://travis-ci.org/LUMC/rna_cd
 
@@ -30,9 +32,18 @@ Requirements
 Installation
 =============
 
+PyPI
+----
+
 ::
 
     $ pip install rna-cd
+
+Conda
+-----
+
+::
+    $ conda install -c bioconda rna-cd
 
 License
 =======
