@@ -9,6 +9,10 @@
 .. image:: https://readthedocs.org/projects/rna-cd/badge/?version=latest
     :target: https://rna-cd.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
+    
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3251945.svg
+   :target: https://doi.org/10.5281/zenodo.3251945
+   :alt: DOI 10.5281/zenodo.3251945
 
 RNA Contamination Detector
 ==========================
