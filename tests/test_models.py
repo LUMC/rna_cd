@@ -103,8 +103,8 @@ def test_classify_unknown(dataset, labels):
     # set the unknown threshold to 0.9999
     with mock.patch("rna_cd.models.make_array_set") as mocked_array2:
         mocked_array2.return_value = (np.random.rand(1, 500), [])
-        classes, probabilities = rna_cd.models.predict_labels_and_prob(
+        predictions = rna_cd.models.predict_labels_and_prob(
             trained, positives, chunksize=1000, unknown_threshold=0.9999
         )
 
-    assert all(x == 'unknown' for x in classes)
+    assert all(x.prediction.value == 'unknown' for x in predictions)

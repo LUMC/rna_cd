@@ -190,18 +190,21 @@ def classify_cli(chunksize: int, contig: str, cores: int,
     echo("Loading model from disk.")
     sklearn_model = load_sklearn_object_from_disk(model)
     echo("Running predictions.")
-    predicted_classes, probabilities = predict_labels_and_prob(
-        sklearn_model, bam_files, chunksize=chunksize,
-        contig=contig, cores=cores, unknown_threshold=unknown_threshold)
+    predictions = predict_labels_and_prob(sklearn_model, bam_files,
+                                          chunksize=chunksize,
+                                          contig=contig, cores=cores,
+                                          unknown_threshold=unknown_threshold)
     echo("Writing predictions to disk.")
     with output.open("w") as ohandle:
-        header = 'filename\tpredicted_class\tclass_probability\n'
+        header = ('filename\tpredicted_class\tpredicted_class_probability\t'
+                  'positive class probability\tnegative class probability\n')
         ohandle.write(header)
-        for i, bam in enumerate(bam_files):
-            fmt = "{fname}\t{cl}\t{prob}\n".format(
-                fname=bam.name,
-                cl=predicted_classes[i],
-                prob=probabilities[i]
-            )
-            ohandle.write(fmt)
+        for bam, pred in zip(bam_files, predictions):
+            fmt = "{fname}\t{pred_cl}\t{pred_prob}\t{pos_prob}\t{neg_prob}\n"
+            to_write = fmt.format(fname=bam.name,
+                                  pred_cl=pred.prediction.value,
+                                  pred_prob=pred.most_likely_prob,
+                                  pos_prob=pred.pos_prob,
+                                  neg_prob=pred.neg_prob)
+            ohandle.write(to_write)
     echo("Done.")
