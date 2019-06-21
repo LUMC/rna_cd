@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import enum
 from pathlib import Path
-from typing import List, Optional, Tuple, NamedTuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -36,11 +36,33 @@ class PredClass(enum.Enum):
     unknown = "unknown"
 
 
-class Prediction(NamedTuple):
-    prediction: PredClass
-    most_likely_prob: float
-    pos_prob: float
-    neg_prob: float
+class Prediction(object):
+    # this class looks a bit java like due to trying to support typed
+    # attributes. From python 3.6 onwards, this can be done with a
+    # typing.NamedTuple or dataclass. However, we need to also support
+    # python 3.5, which does not yet have typed attributes. Hence the
+    # properties.
+    def __init__(self, prediction, most_likely_prob, pos_prob, neg_prob):
+        self._prediction = prediction
+        self._most_likely_prob = most_likely_prob
+        self._pos_prob = pos_prob
+        self._neg_prob = neg_prob
+
+    @property
+    def prediction(self) -> PredClass:
+        return self._prediction
+
+    @property
+    def most_likely_prob(self) -> float:
+        return self._most_likely_prob
+
+    @property
+    def pos_prob(self) -> float:
+        return self.pos_prob
+
+    @property
+    def neg_prob(self) -> float:
+        return self._neg_prob
 
     @classmethod
     def from_model_proba(cls, model, proba: Tuple[float],
