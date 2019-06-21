@@ -14,8 +14,9 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import enum
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, NamedTuple
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -27,6 +28,32 @@ from sklearn.model_selection import GridSearchCV
 
 from .bam_process import make_array_set
 from .utils import echo
+
+
+class PredClass(enum.Enum):
+    positive = "pos"
+    negative = "neg"
+    unknown = "unknown"
+
+
+class Prediction(NamedTuple):
+    prediction: PredClass
+    most_likely_prob: float
+    pos_prob: float
+    neg_prob: float
+
+    @classmethod
+    def from_model_proba(cls, model, proba: Tuple[float],
+                         unknown_threshold: float) -> 'Prediction':
+        likely = max(proba)
+        if likely < unknown_threshold:
+            pred_class = PredClass.unknown
+        else:
+            class_name = model.classes_[np.where(proba == likely)][0]
+            pred_class = PredClass(class_name)
+        pos_prob = proba[np.where(model.classes_ == "pos")][0]
+        neg_prob = proba[np.where(model.classes_ == "neg")][0]
+        return cls(pred_class, likely, pos_prob, neg_prob)
 
 
 def train_svm_model(positive_bams: List[Path], negative_bams: List[Path],
@@ -145,29 +172,22 @@ def plot_pca(searcher: GridSearchCV, arr_X: np.ndarray, arr_Y: np.ndarray,
 def predict_labels_and_prob(model, bam_files: List[Path],
                             chunksize: int = 100, contig: str = "chrM",
                             cores: int = 1,
-                            unknown_threshold: float = 0.75) -> Tuple[List[str], List[float]]:  # noqa
+                            unknown_threshold: float = 0.75) -> List[Prediction]:  # noqa
     """
     Predict labels and probabilities for a list of bam files.
 
     :param unknown_threshold: The probability threshold below which samples
            are considered to be 'unknown'. Must be between 0.5 and 1.0
 
-    :returns: tuple of List[predicted classes],
-              List[probability for the most likely class]
+    :returns: list of Prediction classes
     """
     if not 0.5 < unknown_threshold < 1.0:
         raise ValueError("unknown_threshold must be between 0.5 and 1.0")
 
     bam_arr, _ = make_array_set(bam_files, [], chunksize, contig, cores)
     prob = model.predict_proba(bam_arr)
-    classes = []
-    most_likely_prob = []
+    predictions = []
     for sample in prob:
-        likely = max(sample)
-        if likely < unknown_threshold:
-            predicted_class = 'unknown'
-        else:
-            predicted_class = model.classes_[np.where(sample == likely)][0]
-        classes.append(predicted_class)
-        most_likely_prob.append(likely)
-    return classes, most_likely_prob
+        predictions.append(Prediction.from_model_proba(model, sample,
+                                                       unknown_threshold))
+    return predictions
