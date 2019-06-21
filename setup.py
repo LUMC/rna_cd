@@ -7,7 +7,7 @@ setup(
     name="rna_cd",
     description="RNA contamination detector",
     long_description=LONG_DESCRIPTION,
-    version="0.2.0-dev",
+    version="0.2.0",
     author="Leiden University Medical Center",
     author_email="a.h.b.bollen@lumc.nl",
     url="https://github.com/LUMC/rna_cd",
